@@ -1,0 +1,6 @@
+# Don't version virtual environment
+venv/
+
+# Don't version client secrets and user credentials
+client_secret.json
+storage.json
