@@ -15,9 +15,6 @@
 import gauth
 from apiclient.discovery import build
 from httplib2 import Http
-from oauth2client import file, client, tools
-
-CLIENT_SECRET = "client_secret.json"
 
 SERVICE_NAME = "calendar"
 SERVICE_VERSION = "v3"
