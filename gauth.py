@@ -54,7 +54,6 @@ def authenticate_user(scopes, store_location=DEFAULT_CREDENTIALS_STORE,
     else:
         raise UserAlreadyAuthenticaredError()
 
-
 if __name__ == "__main__":
     if not has_credentials():
         authenticate_user(["profile",

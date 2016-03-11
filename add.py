@@ -24,24 +24,29 @@ SERVICE_NAME = "calendar"
 SERVICE_VERSION = "v3"
 
 EVENT = {
-	"summary": "Test Event",
-	"start": {"dateTime": "2016-03-11T17:00:00+01:00"},
-	"end": {"dateTime": "2016-03-11T18:00:00+01:00"}
+    "summary": "Test Event",
+    "start": {"dateTime": "2016-03-11T17:00:00+01:00"},
+    "end": {"dateTime": "2016-03-11T18:00:00+01:00"}
 }
 
 
 def get_calendar_service(credentials):
-	return build(SERVICE_NAME, SERVICE_VERSION, http=credentials.authorize(Http()))
+    return build(SERVICE_NAME,
+                 SERVICE_VERSION,
+                 http=credentials.authorize(Http()))
+
 
 def add_to_calendar(credentials, event):
-	calendar = get_calendar_service(credentials)
-	response = calendar.events().insert(calendarId="primary", body=EVENT).execute()
-	return response
+    calendar = get_calendar_service(credentials)
+    response = calendar.events().insert(calendarId="primary",
+                                        body=EVENT).execute()
+    return response
+
 
 def main():
-	credentials = gauth.get_credentials()
-	response = add_to_calendar(credentials, EVENT)
-	print("Event added with link: {}".format(response["htmlLink"]))
+    credentials = gauth.get_credentials()
+    response = add_to_calendar(credentials, EVENT)
+    print("Event added with link: {}".format(response["htmlLink"]))
 
 if __name__ == "__main__":
-	main()
+    main()
