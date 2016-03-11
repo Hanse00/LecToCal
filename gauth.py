@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import prompter
 from oauth2client import file, client, tools
 
 DEFAULT_CREDENTIALS_STORE = "storage.json"
@@ -22,11 +23,7 @@ class CredentialsMissingError(Exception):
     """ Credentials must exist before they can be gotten. """
 
 
-class UserAlreadyAuthenticaredError(Exception):
-    """ User cannot be authenticated if another user already is. """
-
-
-def has_credentials(store_location=DEFAULT_CREDENTIALS_STORE):
+def has_valid_credentials(store_location=DEFAULT_CREDENTIALS_STORE):
     store = file.Storage(store_location)
     credentials = store.get()
 
@@ -45,18 +42,23 @@ def get_credentials(store_location=DEFAULT_CREDENTIALS_STORE):
 
 def authenticate_user(scopes, store_location=DEFAULT_CREDENTIALS_STORE,
                       client_secret=DEFAULT_CLIENT_SECRET_STORE):
+    confirm = False
     store = file.Storage(store_location)
     credentials = store.get()
 
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(client_secret, scopes)
-        credentials = tools.run_flow(flow, store)
-    else:
-        raise UserAlreadyAuthenticaredError()
+    if credentials:
+        prompt = "Credentials already exist, do you want to overwrite?"
+        # Not used here as prompter will return whether or not "No"
+        # was entered, giving us the inverse of confirmation.
+        confirm = not prompter.yesno(prompt, default='no')
+        if not confirm:
+            return
+
+    flow = client.flow_from_clientsecrets(client_secret, scopes)
+    credentials = tools.run_flow(flow, store)
 
 if __name__ == "__main__":
-    if not has_credentials():
-        authenticate_user(["profile",
-                           "email",
-                           "https://www.googleapis.com/auth/calendar"])
+    authenticate_user(["profile",
+                       "email",
+                       "https://www.googleapis.com/auth/calendar"])
     print(get_credentials())

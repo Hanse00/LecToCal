@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import gauth
-
 from apiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
