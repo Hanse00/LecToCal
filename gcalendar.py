@@ -13,17 +13,29 @@
 # limitations under the License.
 
 import gauth
+import copy
+from datetime import datetime
+from pytz import timezone
 from apiclient.discovery import build
 from httplib2 import Http
 
 SERVICE_NAME = "calendar"
 SERVICE_VERSION = "v3"
 
-EVENT = {
-    "summary": "Test Event",
-    "start": {"dateTime": "2016-03-11T17:00:00+01:00"},
-    "end": {"dateTime": "2016-03-11T18:00:00+01:00"}
-}
+
+class Event(object):
+    JSON_TEMPLATE = {
+        "summary": None,
+        "start": {"dateTime": None},
+        "end": {"dateTime": None}
+    }
+
+    def __init__(self, summary, start, end):
+        self.json = copy.deepcopy(self.JSON_TEMPLATE)
+
+        self.json["summary"] = summary
+        self.json["start"]["dateTime"] = start.isoformat()
+        self.json["end"]["dateTime"] = end.isoformat()
 
 
 def get_calendar_service(credentials):
@@ -35,13 +47,20 @@ def get_calendar_service(credentials):
 def add_to_calendar(credentials, event):
     calendar = get_calendar_service(credentials)
     response = calendar.events().insert(calendarId="primary",
-                                        body=EVENT).execute()
+                                        body=event).execute()
     return response
 
 
 def main():
+    local_time = timezone("Europe/Copenhagen")
+    start_time = local_time.localize(datetime(2016, 3, 13, 17))
+    end_time = local_time.localize(datetime(2016, 3, 13, 18))
+    event = Event("Test Event", start_time, end_time)
+
+    print(event.json)
+
     credentials = gauth.get_credentials()
-    response = add_to_calendar(credentials, EVENT)
+    response = add_to_calendar(credentials, event.json)
     print("Event added with link: {}".format(response["htmlLink"]))
 
 if __name__ == "__main__":
