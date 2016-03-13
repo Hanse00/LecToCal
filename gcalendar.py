@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pprint
+
 import gauth
 import copy
 from datetime import datetime
@@ -44,24 +46,42 @@ def get_calendar_service(credentials):
                  http=credentials.authorize(Http()))
 
 
-def add_to_calendar(credentials, event):
-    calendar = get_calendar_service(credentials)
-    response = calendar.events().insert(calendarId="primary",
-                                        body=event).execute()
+def add_to_calendar(service, event, calendar_id="primary"):
+    response = service.events() \
+                      .insert(calendarId=calendar_id, body=event) \
+                      .execute()
     return response
 
 
+def get_calendars(service):
+    page_token = None
+    calendar_list = []
+    while True:
+        response = service.calendarList() \
+                          .list(pageToken=page_token) \
+                          .execute()
+        calendar_list += response["items"]
+        page_token = response.get('nextPageToken')
+        if not page_token:
+            break
+    return calendar_list
+
+
 def main():
-    local_time = timezone("Europe/Copenhagen")
-    start_time = local_time.localize(datetime(2016, 3, 13, 17))
-    end_time = local_time.localize(datetime(2016, 3, 13, 18))
-    event = Event("Test Event", start_time, end_time)
-
-    print(event.json)
-
     credentials = gauth.get_credentials()
-    response = add_to_calendar(credentials, event.json)
-    print("Event added with link: {}".format(response["htmlLink"]))
+    calendar_service = get_calendar_service(credentials)
+
+    pprint.pprint(get_calendars(calendar_service))
+
+    # local_time = timezone("Europe/Copenhagen")
+    # start_time = local_time.localize(datetime(2016, 3, 13, 17))
+    # end_time = local_time.localize(datetime(2016, 3, 13, 18))
+    # event = Event("Test Event", start_time, end_time)
+
+    # print(event.json)
+
+    # response = add_to_calendar(calendar_service, event.json)
+    # print("Event added with link: {}".format(response["htmlLink"]))
 
 if __name__ == "__main__":
     main()
