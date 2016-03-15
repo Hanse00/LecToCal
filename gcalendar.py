@@ -46,7 +46,7 @@ def get_calendar_service(credentials):
                  http=credentials.authorize(Http()))
 
 
-def add_to_calendar(service, event, calendar_id="primary"):
+def add_event(service, event, calendar_id="primary"):
     response = service.events() \
                       .insert(calendarId=calendar_id, body=event) \
                       .execute()
@@ -67,11 +67,29 @@ def get_calendars(service):
     return calendar_list
 
 
+def has_calendar(service, summary):
+    calendars = get_calendars(service)
+    for calendar in calendars:
+        if calendar["summary"] == summary:
+            return True
+    return False
+
+
+def add_calendar(service, summary):
+    calendar_body = {"summary": summary}
+    response = service.calendars().insert(body=calendar_body).execute()
+    return response
+
+
 def main():
     credentials = gauth.get_credentials()
     calendar_service = get_calendar_service(credentials)
 
-    pprint.pprint(get_calendars(calendar_service))
+    if not has_calendar(calendar_service, "Lectio"):
+        response = add_calendar(calendar_service, "Lectio")
+        print("Added Lectio calendar with id: {}".format(response["id"]))
+    else:
+        print("Lectio calendar exists")
 
     # local_time = timezone("Europe/Copenhagen")
     # start_time = local_time.localize(datetime(2016, 3, 13, 17))
