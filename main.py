@@ -13,6 +13,11 @@
 # limitations under the License.
 
 import argparse
+import oauth2client.file
+
+
+class CredentialsMissingError(Exception):
+    """ Credentials must exist before they can be gotten. """
 
 
 def get_arguments():
@@ -40,9 +45,26 @@ def get_arguments():
     return arguments
 
 
+def _has_valid_credentials(credentials_store):
+    store = oauth2client.file.Storage(credentials_store)
+    credentials = store.get()
+    return credentials is not None and not credentials.invalid
+
+
+def _retreive_credentials(credentials_store):
+    store = oauth2client.file.Storage(credentials_store)
+    credentials = store.get()
+    return credentials
+
+
 def get_google_credentials(credentials_store):
+    # Debugging message
     print("Getting the Google credentials at {}".format(credentials_store))
-    return "some_credentials"
+
+    if not _has_valid_credentials(credentials_store):
+        raise CredentialsMissingError("No credentials found at: {}"
+                                      .format(credentials_store))
+    return _retreive_credentials(credentials_store)
 
 
 def get_lectio_schedule(school_id, user_type, user_id):
