@@ -12,53 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import prompter
-from oauth2client import file, client, tools
-
-DEFAULT_CREDENTIALS_STORE = "storage.json"
-DEFAULT_CLIENT_SECRET_STORE = "client_secret.json"
+import oauth2client.file
 
 
 class CredentialsMissingError(Exception):
     """ Credentials must exist before they can be gotten. """
 
 
-def has_valid_credentials(store_location=DEFAULT_CREDENTIALS_STORE):
-    store = file.Storage(store_location)
+def _has_valid_credentials(credentials_store):
+    store = oauth2client.file.Storage(credentials_store)
     credentials = store.get()
-
     return credentials is not None and not credentials.invalid
 
 
-def get_credentials(store_location=DEFAULT_CREDENTIALS_STORE):
-    store = file.Storage(store_location)
+def _retreive_credentials(credentials_store):
+    store = oauth2client.file.Storage(credentials_store)
     credentials = store.get()
-
-    if not credentials:
-        raise CredentialsMissingError()
-
     return credentials
 
 
-def authenticate_user(scopes, store_location=DEFAULT_CREDENTIALS_STORE,
-                      client_secret=DEFAULT_CLIENT_SECRET_STORE):
-    confirm = False
-    store = file.Storage(store_location)
-    credentials = store.get()
+def get_credentials(credentials_store):
+    # Debugging message
+    print("Getting the Google credentials at {}".format(credentials_store))
 
-    if credentials:
-        prompt = "Credentials already exist, do you want to overwrite?"
-        # Not used here as prompter will return whether or not "No"
-        # was entered, giving us the inverse of confirmation.
-        confirm = not prompter.yesno(prompt, default='no')
-        if not confirm:
-            return
-
-    flow = client.flow_from_clientsecrets(client_secret, scopes)
-    credentials = tools.run_flow(flow, store)
-
-if __name__ == "__main__":
-    authenticate_user(["profile",
-                       "email",
-                       "https://www.googleapis.com/auth/calendar"])
-    print(get_credentials())
+    if not _has_valid_credentials(credentials_store):
+        raise CredentialsMissingError("No credentials found at: {}"
+                                      .format(credentials_store))
+    return _retreive_credentials(credentials_store)

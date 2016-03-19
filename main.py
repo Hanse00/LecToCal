@@ -13,11 +13,9 @@
 # limitations under the License.
 
 import argparse
-import oauth2client.file
-
-
-class CredentialsMissingError(Exception):
-    """ Credentials must exist before they can be gotten. """
+import gauth
+import lectio
+import gcalendar
 
 
 def get_arguments():
@@ -45,63 +43,18 @@ def get_arguments():
     return arguments
 
 
-def _has_valid_credentials(credentials_store):
-    store = oauth2client.file.Storage(credentials_store)
-    credentials = store.get()
-    return credentials is not None and not credentials.invalid
-
-
-def _retreive_credentials(credentials_store):
-    store = oauth2client.file.Storage(credentials_store)
-    credentials = store.get()
-    return credentials
-
-
-def get_google_credentials(credentials_store):
-    # Debugging message
-    print("Getting the Google credentials at {}".format(credentials_store))
-
-    if not _has_valid_credentials(credentials_store):
-        raise CredentialsMissingError("No credentials found at: {}"
-                                      .format(credentials_store))
-    return _retreive_credentials(credentials_store)
-
-
-def get_lectio_schedule(school_id, user_type, user_id):
-    print("Getting schedule for user: {} {} at school: {}".format(user_type,
-                                                                  user_id,
-                                                                  school_id))
-    return {"class": "math"}
-
-
-def schedule_has_changed(google_credentials, calendar_name, schedule):
-    print("Checking if the schedule: {} is different from calendar: {} "
-          "for user with Google crendentials: {}".format(schedule,
-                                                         calendar_name,
-                                                         google_credentials))
-    return True
-
-
-def update_google_calendar_with_schedule(google_credentials,
-                                         calendar_name,
-                                         schedule):
-    print("Updating calendar: {}, with data: {}, for user with "
-          "crendentials: {}".format(calendar_name, schedule,
-                                    google_credentials))
-
-
 def main():
     arguments = get_arguments()
-    google_credentials = get_google_credentials(arguments["credentials"])
-    schedule = get_lectio_schedule(arguments["school_id"],
+    google_credentials = gauth.get_credentials(arguments["credentials"])
+    schedule = lectio.get_schedule(arguments["school_id"],
                                    arguments["user_type"],
                                    arguments["user_id"])
-    if schedule_has_changed(google_credentials,
-                            arguments["calendar"],
-                            schedule):
-        update_google_calendar_with_schedule(google_credentials,
-                                             arguments["calendar"],
-                                             schedule)
+    if gcalendar.schedule_has_updated(google_credentials,
+                                      arguments["calendar"],
+                                      schedule):
+        gcalendar.update_calendar_with_schedule(google_credentials,
+                                                arguments["calendar"],
+                                                schedule)
 
 if __name__ == "__main__":
     main()
