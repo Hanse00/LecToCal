@@ -12,9 +12,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import requests
+
+
+class UserDoesNotExistError(Exception):
+    """ Attempted to get a non-existing user from Lectio. """
+
+
+class Lesson(object):
+    pass
+
+
+def _get_user_page(school_id, user_type, user_id):
+    URL_TEMPLATE = "http://www.lectio.dk/lectio/{0}/" \
+                   "SkemaNy.aspx?type={1}&{1}id={2}"
+    USER_TYPE = {"student": "elev", "teacher": "laerer"}
+
+    r = requests.get(URL_TEMPLATE.format(school_id,
+                                         USER_TYPE[user_type],
+                                         user_id),
+                     allow_redirects=False)
+    return r
+
+
+def _retreive_user_schedule(school_id, user_type, user_id):
+    return ["Math", "Danish", "IT"]
+
+
+def _user_exists(school_id, user_type, user_id):
+    r = _get_user_page(school_id, user_type, user_id)
+    return r.status_code == requests.codes.ok
+
 
 def get_schedule(school_id, user_type, user_id):
+    # Debugging message
     print("Getting schedule for user: {} {} at school: {}".format(user_type,
                                                                   user_id,
                                                                   school_id))
-    return {"class": "math"}
+    if not _user_exists(school_id, user_type, user_id):
+        raise UserDoesNotExistError("Couldn't find user - school: {}, "
+                                    "type: {}, id: {} - in Lectio.".format(
+                                        school_id, user_type, user_id))
+    return _retreive_user_schedule(school_id, user_type, user_id)
