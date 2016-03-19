@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import requests
 
 
@@ -25,18 +26,37 @@ class Lesson(object):
 
 def _get_user_page(school_id, user_type, user_id):
     URL_TEMPLATE = "http://www.lectio.dk/lectio/{0}/" \
-                   "SkemaNy.aspx?type={1}&{1}id={2}"
+                   "SkemaNy.aspx?type={1}&{1}id={2}&week={3}"
     USER_TYPE = {"student": "elev", "teacher": "laerer"}
 
     r = requests.get(URL_TEMPLATE.format(school_id,
                                          USER_TYPE[user_type],
-                                         user_id),
+                                         user_id,
+                                         ""),
                      allow_redirects=False)
     return r
 
 
+def _get_lectio_weekformat_with_offset(offset):
+    today = datetime.date(2015, 12, 20)
+    future_date = today + datetime.timedelta(weeks=offset)
+    week_number = "{0:02d}".format(future_date.isocalendar()[1])
+    year_number = str(future_date.isocalendar()[0])
+    lectio_week = week_number + year_number
+    return lectio_week
+
+
+def _get_week_schedule(school_id, user_type, user_id, week):
+    pass
+
+
 def _retreive_user_schedule(school_id, user_type, user_id):
-    return ["Math", "Danish", "IT"]
+    schedule = []
+    for week_offset in range(4):
+        week = _get_lectio_weekformat_with_offset(week_offset)
+        week_schedule = _get_week_schedule(school_id, user_type, user_id, week)
+        schedule += week_schedule
+    return schedule
 
 
 def _user_exists(school_id, user_type, user_id):
