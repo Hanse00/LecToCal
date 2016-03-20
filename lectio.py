@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import datetime
+import re
 import requests
 from lxml import html
 
@@ -21,8 +22,12 @@ class UserDoesNotExistError(Exception):
     """ Attempted to get a non-existing user from Lectio. """
 
 
+class IdNotFoundInLinkError(Exception):
+    """ All lessons with a link should include an ID. """
+
+
 class Lesson(object):
-    def __init__(self, id, summary, status, start_time, end_time):
+    def __init__(self, id, summary=None, status=None, start_time=None, end_time=None):
         self.id = id
         self.summary = summary
         self.status = status
@@ -40,6 +45,9 @@ class Lesson(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __repr__(self):
+        return str(self.id)
 
 
 def _get_user_page(school_id, user_type, user_id, week=""):
@@ -65,7 +73,11 @@ def _get_lectio_weekformat_with_offset(offset):
 
 
 def _get_id_from_link(link):
-    pass
+    match = re.search("absid=(\d+)", link)
+    if match is None:
+        raise IdNotFoundInLinkError("Couldn't find id in link: {}".format(
+                                    link))
+    return match.group(1)
 
 
 def _get_info_from_title(title):
@@ -77,9 +89,9 @@ def _parse_element_to_lesson(element):
     id = None
     if link:
         id = _get_id_from_link(link)
-    summary, status, start_time, end_time = \
-        _get_details_from_title(element.get("title"))
-    return Lesson(id, summary, status, start_time, end_time)
+    # summary, status, start_time, end_time = \
+    #     _get_details_from_title(element.get("title"))
+    return Lesson(id)
 
 
 def _parse_page_to_lessons(page):
@@ -90,7 +102,7 @@ def _parse_page_to_lessons(page):
                                  "' s2skemabrik ')]")
     lessons = []
     for element in lesson_elements:
-        lessons += _parse_element_to_lesson(element)
+        lessons.append(_parse_element_to_lesson(element))
     return lessons
 
 
@@ -104,7 +116,7 @@ def _filter_for_duplicates(schedule):
     filtered_schedule = []
     for lesson in schedule:
         if lesson not in filtered_schedule:
-            filtered_schedule += lesson
+            filtered_schedule.append(lesson)
     return filtered_schedule
 
 
