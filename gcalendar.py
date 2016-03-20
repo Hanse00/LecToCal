@@ -14,16 +14,17 @@
 
 
 def schedule_has_updated(google_credentials, calendar_name, schedule):
-    print("Checking if the schedule: {} is different from calendar: {} "
-          "for user with Google crendentials: {}".format(schedule,
-                                                         calendar_name,
-                                                         google_credentials))
+    # print("Checking if the schedule: {} is different from calendar: {} "
+    #       "for user with Google crendentials: {}".format(schedule,
+    #                                                      calendar_name,
+    #                                                      google_credentials))
     return True
 
 
 def update_calendar_with_schedule(google_credentials,
                                   calendar_name,
                                   schedule):
-    print("Updating calendar: {}, with data: {}, for user with "
-          "crendentials: {}".format(calendar_name, schedule,
-                                    google_credentials))
+    # print("Updating calendar: {}, with data: {}, for user with "
+    #       "crendentials: {}".format(calendar_name, schedule,
+    #                                 google_credentials))
+    pass

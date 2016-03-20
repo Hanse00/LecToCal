@@ -14,8 +14,13 @@
 
 import datetime
 import re
+import pprint
 import requests
 from lxml import html
+
+
+USER_TYPE = {"student": "elev", "teacher": "laerer"}
+LESSON_STATUS = {"normal": None, "changed": "Ændret!", "cancelled": "Aflyst!"}
 
 
 class UserDoesNotExistError(Exception):
@@ -26,8 +31,16 @@ class IdNotFoundInLinkError(Exception):
     """ All lessons with a link should include an ID. """
 
 
+class InvalidStatusError(Exception):
+    """ Lesson status can only take the values 'Ændret!' and 'Aflyst!' """
+
+
+class InvalidTimeLineError(Exception):
+    """ The line doesn't include any valid formatting of time. """
+
+
 class Lesson(object):
-    def __init__(self, id, summary=None, status=None, start_time=None, end_time=None):
+    def __init__(self, id, summary, status, start_time, end_time):
         self.id = id
         self.summary = summary
         self.status = status
@@ -47,13 +60,14 @@ class Lesson(object):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return str(self.id)
+        return str({"id": self.id, "summary": self.summary,
+                    "status": self.status, "start": self.start_time,
+                    "end": self.end_time})
 
 
 def _get_user_page(school_id, user_type, user_id, week=""):
     URL_TEMPLATE = "http://www.lectio.dk/lectio/{0}/" \
                    "SkemaNy.aspx?type={1}&{1}id={2}&week={3}"
-    USER_TYPE = {"student": "elev", "teacher": "laerer"}
 
     r = requests.get(URL_TEMPLATE.format(school_id,
                                          USER_TYPE[user_type],
@@ -80,8 +94,95 @@ def _get_id_from_link(link):
     return match.group(1)
 
 
+def _is_status_line(line):
+    match = re.search("Ændret!|Aflyst!", line)
+    return match is not None
+
+
+def _is_time_line(line):
+    # Search for one of the following formats:
+    # 14/3-2016 Hele dagen
+    # 14/3-2016 15:20 til 16:50
+    # 8/4-2016 17:30 til 9/4-2016 01:00
+    # 7/12-2015 10:00 til 11:30
+    # 17/12-2015 10:00 til 11:30
+    match = re.search("\d{1,2}/\d{1,2}-\d{4} (?:Hele dagen|\d{2}:\d{2} til "
+                      "(?:\d{1,2}/\d{1,2}-\d{4} )?\d{2}:\d{2})", line)
+    return match is not None
+
+
+def _get_status_from_line(line):
+    for key, value in LESSON_STATUS.items():
+        if value == line:
+            return key
+    raise InvalidStatusError("Line: '{}' has no valid status".format(line))
+
+
+def _get_date_from_match(match):
+    if match:
+        return datetime.datetime.strptime(match, "%d/%m-%Y").date()
+    else:
+        return None
+
+
+def _get_time_from_match(match):
+    if match:
+        return datetime.datetime.strptime(match, "%H:%M").time()
+    else:
+        return None
+
+
+def _get_time_from_line(line):
+    # Extract the following information in capture groups:
+    # 1 - start date
+    # 2 - start time
+    # 3 - end date
+    # 4 - end time
+    match = re.search("(\d{1,2}/\d{1,2}-\d{4})(?: (\d{2}:\d{2}) til"
+                      "(\d{1,2}/\d{1,2}-\d{4})? ?(\d{2}:\d{2}))?", line)
+    if match is None:
+        raise InvalidTimeLineError("No time found in line: '{}'".format(line))
+
+    start_date = _get_date_from_match(match.group(1))
+    start_time = _get_time_from_match(match.group(2))
+
+    if start_time:
+        start = datetime.datetime.combine(start_date, start_time)
+    else:
+        start = start_date
+
+    end_date = _get_date_from_match(match.group(3))
+    end_time = _get_time_from_match(match.group(4))
+
+    if not end_date:
+        end_date = start_date
+
+    if end_time:
+        end = datetime.datetime.combine(end_date, end_time)
+    else:
+        end = end_date
+    return start, end
+
+
+def _add_line_to_summary(line, summary):
+    if summary != "":
+        summary += "\n"
+    summary += line
+    return summary
+
+
 def _get_info_from_title(title):
-    pass
+    summary = ""
+    status = start_time = end_time = None
+    lines = title.split("\n")
+    for line in lines:
+        if _is_status_line(line):
+            status = _get_status_from_line(line)
+        elif _is_time_line(line):
+            start_time, end_time = _get_time_from_line(line)
+        else:
+            summary = _add_line_to_summary(line, summary)
+    return summary, status, start_time, end_time
 
 
 def _parse_element_to_lesson(element):
@@ -89,9 +190,9 @@ def _parse_element_to_lesson(element):
     id = None
     if link:
         id = _get_id_from_link(link)
-    # summary, status, start_time, end_time = \
-    #     _get_details_from_title(element.get("title"))
-    return Lesson(id)
+    summary, status, start_time, end_time = \
+        _get_info_from_title(element.get("title"))
+    return Lesson(id, summary, status, start_time, end_time)
 
 
 def _parse_page_to_lessons(page):
@@ -122,7 +223,7 @@ def _filter_for_duplicates(schedule):
 
 def _retreive_user_schedule(school_id, user_type, user_id):
     schedule = []
-    for week_offset in range(4):
+    for week_offset in range(1):
         week = _get_lectio_weekformat_with_offset(week_offset)
         week_schedule = _retreive_week_schedule(school_id,
                                                 user_type,
@@ -130,6 +231,8 @@ def _retreive_user_schedule(school_id, user_type, user_id):
                                                 week)
         schedule += week_schedule
     filtered_schedule = _filter_for_duplicates(schedule)
+    print("Got schedule:")
+    pprint.pprint(filtered_schedule)
     return filtered_schedule
 
 
