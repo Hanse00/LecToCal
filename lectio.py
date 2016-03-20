@@ -21,10 +21,27 @@ class UserDoesNotExistError(Exception):
 
 
 class Lesson(object):
-    pass
+    def __init__(self, id, summary, status, start_time, end_time):
+        self.id = id
+        self.summary = summary
+        self.status = status
+        self.start_time = start_time
+        self.end_time = end_time
+
+    def __eq__(self, other):
+        if type(self) == type(other):
+            if self.id is None and other.id is None:
+                if self.summary == other.summary:
+                    return True
+            elif self.id == other.id:
+                return True
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
-def _get_user_page(school_id, user_type, user_id):
+def _get_user_page(school_id, user_type, user_id, week=""):
     URL_TEMPLATE = "http://www.lectio.dk/lectio/{0}/" \
                    "SkemaNy.aspx?type={1}&{1}id={2}&week={3}"
     USER_TYPE = {"student": "elev", "teacher": "laerer"}
@@ -50,13 +67,23 @@ def _get_week_schedule(school_id, user_type, user_id, week):
     pass
 
 
+
+def _filter_for_duplicates(schedule):
+    filtered_schedule = []
+    for lesson in schedule:
+        if lesson not in filtered_schedule:
+            filtered_schedule += lesson
+    return filtered_schedule
+
+
 def _retreive_user_schedule(school_id, user_type, user_id):
     schedule = []
     for week_offset in range(4):
         week = _get_lectio_weekformat_with_offset(week_offset)
         week_schedule = _get_week_schedule(school_id, user_type, user_id, week)
         schedule += week_schedule
-    return schedule
+    filtered_schedule = _filter_for_duplicates(schedule)
+    return filtered_schedule
 
 
 def _user_exists(school_id, user_type, user_id):
