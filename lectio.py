@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
 import datetime
 import re
 import pprint
@@ -40,12 +41,24 @@ class InvalidTimeLineError(Exception):
 
 
 class Lesson(object):
-    def __init__(self, id, summary, status, start_time, end_time):
-        self.id = id
+    def __init__(self, id, summary, status, start, end):
         self.summary = summary
         self.status = status
-        self.start_time = start_time
-        self.end_time = end_time
+        self.start = start
+        self.end = end
+
+        if id is None:
+            self.id = self._gen_id()
+        else:
+            self.id = id
+
+    def _gen_id(self):
+        lesson_string = str(self.summary) + str(self.status) + \
+                        str(self.start) + str(self.end)
+        hasher = hashlib.sha256()
+        hasher.update(bytes(lesson_string, "utf8"))
+        hash_value = hasher.hexdigest()
+        return hash_value
 
     def __eq__(self, other):
         if type(self) == type(other):
@@ -61,8 +74,8 @@ class Lesson(object):
 
     def __repr__(self):
         return str({"id": self.id, "summary": self.summary,
-                    "status": self.status, "start": self.start_time,
-                    "end": self.end_time})
+                    "status": self.status, "start": self.start,
+                    "end": self.end})
 
 
 def _get_user_page(school_id, user_type, user_id, week=""):
@@ -223,7 +236,7 @@ def _filter_for_duplicates(schedule):
 
 def _retreive_user_schedule(school_id, user_type, user_id):
     schedule = []
-    for week_offset in range(1):
+    for week_offset in range(4):
         week = _get_lectio_weekformat_with_offset(week_offset)
         week_schedule = _retreive_week_schedule(school_id,
                                                 user_type,
@@ -231,6 +244,7 @@ def _retreive_user_schedule(school_id, user_type, user_id):
                                                 week)
         schedule += week_schedule
     filtered_schedule = _filter_for_duplicates(schedule)
+    # Debug printing
     print("Got schedule:")
     pprint.pprint(filtered_schedule)
     return filtered_schedule
