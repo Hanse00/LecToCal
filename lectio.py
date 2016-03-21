@@ -43,7 +43,7 @@ class InvalidTimeLineError(Exception):
 class Lesson(object):
     def __init__(self, id, summary, status, start, end):
         self.summary = summary
-        self.status = status
+        self.status = None
         self.start = start
         self.end = end
 
@@ -62,10 +62,7 @@ class Lesson(object):
 
     def __eq__(self, other):
         if type(self) == type(other):
-            if self.id is None and other.id is None:
-                if self.summary == other.summary:
-                    return True
-            elif self.id == other.id:
+            if self.id == other.id:
                 return True
         return False
 

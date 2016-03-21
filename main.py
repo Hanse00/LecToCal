@@ -46,6 +46,8 @@ def get_arguments():
 def main():
     arguments = get_arguments()
     google_credentials = gauth.get_credentials(arguments["credentials"])
+    if not gcalendar.has_calendar(google_credentials, arguments["calendar"]):
+        gcalendar.create_calendar(google_credentials, arguments["calendar"])
     schedule = lectio.get_schedule(arguments["school_id"],
                                    arguments["user_type"],
                                    arguments["user_id"])
