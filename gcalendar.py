@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import lectio
+import lesson
 import datetime
 import apiclient.discovery
 from httplib2 import Http
@@ -22,6 +22,11 @@ SERVICE_NAME = "calendar"
 SERVICE_VERSION = "v3"
 
 DEFAULT_TIME_ZONE = pytz.timezone("Europe/Copenhagen")
+LESSON_STATUS = {"10": "normal", "5": "changed", "11": "cancelled"}
+
+
+class InvalidStatusError(Exception):
+    """ Lesson status can only take the values 10, 5 and 11 """
 
 
 class CalendarNotFoundError(object):
@@ -108,22 +113,36 @@ def _get_events_in_date_range(service, calendar_id, start, end):
     return all_events
 
 
+def _get_status_from_color(colorId):
+    try:
+        return LESSON_STATUS[colorId]
+    except KeyError:
+        raise InvalidStatusError("Color: {} is not valid as status.".format(
+                                  colorId))
+
+
+def _get_datetime_from_field(field):
+    return datetime.datetime(
+        *(datetime.datetime.strptime(field, "%Y-%m-%dT%H:%M:%S:%z")[0:6]))
+
+
+def _get_date_from_field(field):
+    datetime.datetime.strptime(field, "%Y-%m-%d").date()
+
+
 def _parse_event_to_lesson(event):
     id = event["id"]
-    sumarry = event["summary"]
-    if event["start"]["dateTime"]:
-        start = datetime.datetime.strptime(event["start"]["dateTime"],
-                                           "%Y-%m-%dT%H:%M")
+    summary = event["summary"]
+    status = _get_status_from_color(event["colorId"])
+    if "dateTime" in event["start"]:
+        start = _get_datetime_from_field(event["start"]["dateTime"])
     else:
-        start = datetime.datetime.strptime(event["start"]["date"],
-                                           "%Y-%m-%d").date()
-    if event["end"]["dateTime"]:
-        end = datetime.datetime.strptime(event["end"]["dateTime"],
-                                         "%Y-%m-%dT%H:%M")
+        start = _get_date_from_field(event["start"]["date"])
+    if "dateTime" in event["end"]:
+        end = _get_datetime_from_field(event["end"]["dateTime"])
     else:
-        end = datetime.datetime.strptime(event["end"]["date"],
-                                         "%Y-%m-%d").date()
-    return lectio.Lesson(id, summary, None, start, end)
+        end = _get_date_from_field(event["end"]["date"])
+    return lesson.Lesson(id, summary, status, start, end)
 
 
 def _parse_events_to_schedule(events):
@@ -133,7 +152,7 @@ def _parse_events_to_schedule(events):
     return schedule
 
 
-def _get_schedule_from_calendar(google_credentials, calendar_name):
+def get_schedule(google_credentials, calendar_name):
     service = _get_calendar_service(google_credentials)
     calendar_id = _get_calendar_id_for_name(google_credentials, calendar_name)
     start = _get_first_time_of_week()
@@ -142,28 +161,53 @@ def _get_schedule_from_calendar(google_credentials, calendar_name):
     return _parse_events_to_schedule(events)
 
 
-def _schedules_are_identical(schedule1, schedule2):
-    # Check if all lessons in each schedule, have a corresponding
-    # lesson in the other schedule
-    return all(lesson in schedule1 for lesson in schedule2) and \
-           all(lesson in schedule2 for lesson in schedule1)
+def _delete_lesson(service, calendar_id, lesson_id):
+    service \
+        .events() \
+        .delete(calendarId=calendar_id, eventId=lesson_id) \
+        .execute()
 
 
-def schedule_has_updated(google_credentials, calendar_name, schedule):
-    # Debug message
-    # print("Checking if the schedule: {} is different from calendar: {} "
-    #       "for user with Google crendentials: {}".format(schedule,
-    #                                                      calendar_name,
-    #                                                      google_credentials))
-    google_schedule = _get_schedule_from_calendar(google_credentials,
-                                                  calendar_name)
-    return not _schedules_are_identical(schedule, google_schedule)
+def _add_lesson(service, calendar_id, lesson):
+    service \
+        .events() \
+        .insert(calendarId=calendar_id, body=lesson.to_gcalendar_format()) \
+        .execute()
+
+
+def _update_lesson(service, calendar_id, lesson):
+    service \
+        .events() \
+        .update(calendarId=calendar_id,
+                eventId=lesson.id,
+                body=lesson.to_gcalendar_format()) \
+        .execute()
+
+
+def _delete_removed_lessons(service, calendar_id, old_schedule, new_schedule):
+    for lesson in old_schedule:
+        if lesson not in new_schedule:
+            _delete_lesson(service, calendar_id, lesson.id)
+
+
+def _add_new_lessons(service, calendar_id, old_schedule, new_schedule):
+    for lesson in new_schedule:
+        if lesson not in old_schedule:
+            _add_lesson(service, calendar_id, lesson)
+
+
+def _update_current_lessons(service, calendar_id, old_schedule, new_schedule):
+    for new_lesson in new_schedule:
+        if new_lesson in old_schedule:
+            _update_lesson(service, calendar_id, new_lesson)
 
 
 def update_calendar_with_schedule(google_credentials,
                                   calendar_name,
-                                  schedule):
-    # print("Updating calendar: {}, with data: {}, for user with "
-    #       "crendentials: {}".format(calendar_name, schedule,
-    #                                 google_credentials))
-    pass
+                                  old_schedule,
+                                  new_schedule):
+    service = _get_calendar_service(google_credentials)
+    calendar_id = _get_calendar_id_for_name(google_credentials, calendar_name)
+    _delete_removed_lessons(service, calendar_id, old_schedule, new_schedule)
+    _add_new_lessons(service, calendar_id, old_schedule, new_schedule)
+    _update_current_lessons(service, calendar_id, old_schedule, new_schedule)

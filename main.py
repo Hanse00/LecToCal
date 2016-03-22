@@ -15,6 +15,7 @@
 import argparse
 import gauth
 import lectio
+import lesson
 import gcalendar
 
 
@@ -48,15 +49,16 @@ def main():
     google_credentials = gauth.get_credentials(arguments["credentials"])
     if not gcalendar.has_calendar(google_credentials, arguments["calendar"]):
         gcalendar.create_calendar(google_credentials, arguments["calendar"])
-    schedule = lectio.get_schedule(arguments["school_id"],
-                                   arguments["user_type"],
-                                   arguments["user_id"])
-    if gcalendar.schedule_has_updated(google_credentials,
-                                      arguments["calendar"],
-                                      schedule):
+    lectio_schedule = lectio.get_schedule(arguments["school_id"],
+                                          arguments["user_type"],
+                                          arguments["user_id"])
+    google_schedule = gcalendar.get_schedule(google_credentials,
+                                             arguments["calendar"])
+    if not lesson.schedules_are_identical(lectio_schedule, google_schedule):
         gcalendar.update_calendar_with_schedule(google_credentials,
                                                 arguments["calendar"],
-                                                schedule)
+                                                google_schedule,
+                                                lectio_schedule)
 
 if __name__ == "__main__":
     main()

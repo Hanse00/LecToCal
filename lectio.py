@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import hashlib
+import lesson
 import datetime
 import re
-import pprint
 import requests
 from lxml import html
 
 
 USER_TYPE = {"student": "elev", "teacher": "laerer"}
-LESSON_STATUS = {"normal": None, "changed": "Ændret!", "cancelled": "Aflyst!"}
+LESSON_STATUS = {None: "normal", "Ændret!": "changed", "Aflyst!": "cancelled"}
 
 
 class UserDoesNotExistError(Exception):
@@ -33,46 +32,11 @@ class IdNotFoundInLinkError(Exception):
 
 
 class InvalidStatusError(Exception):
-    """ Lesson status can only take the values 'Ændret!' and 'Aflyst!' """
+    """ Lesson status can only take the values Ændret!, Aflyst! and None. """
 
 
 class InvalidTimeLineError(Exception):
     """ The line doesn't include any valid formatting of time. """
-
-
-class Lesson(object):
-    def __init__(self, id, summary, status, start, end):
-        self.summary = summary
-        self.status = None
-        self.start = start
-        self.end = end
-
-        if id is None:
-            self.id = self._gen_id()
-        else:
-            self.id = id
-
-    def _gen_id(self):
-        lesson_string = str(self.summary) + str(self.status) + \
-                        str(self.start) + str(self.end)
-        hasher = hashlib.sha256()
-        hasher.update(bytes(lesson_string, "utf8"))
-        hash_value = hasher.hexdigest()
-        return hash_value
-
-    def __eq__(self, other):
-        if type(self) == type(other):
-            if self.id == other.id:
-                return True
-        return False
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __repr__(self):
-        return str({"id": self.id, "summary": self.summary,
-                    "status": self.status, "start": self.start,
-                    "end": self.end})
 
 
 def _get_user_page(school_id, user_type, user_id, week=""):
@@ -122,10 +86,10 @@ def _is_time_line(line):
 
 
 def _get_status_from_line(line):
-    for key, value in LESSON_STATUS.items():
-        if value == line:
-            return key
-    raise InvalidStatusError("Line: '{}' has no valid status".format(line))
+    try:
+        return LESSON_STATUS[line]
+    except KeyError:
+        raise InvalidStatusError("Line: '{}' has no valid status".format(line))
 
 
 def _get_date_from_match(match):
@@ -202,7 +166,7 @@ def _parse_element_to_lesson(element):
         id = _get_id_from_link(link)
     summary, status, start_time, end_time = \
         _get_info_from_title(element.get("title"))
-    return Lesson(id, summary, status, start_time, end_time)
+    return lesson.Lesson(id, summary, status, start_time, end_time)
 
 
 def _parse_page_to_lessons(page):
@@ -241,9 +205,6 @@ def _retreive_user_schedule(school_id, user_type, user_id):
                                                 week)
         schedule += week_schedule
     filtered_schedule = _filter_for_duplicates(schedule)
-    # Debug printing
-    print("Got schedule:")
-    pprint.pprint(filtered_schedule)
     return filtered_schedule
 
 
@@ -253,10 +214,6 @@ def _user_exists(school_id, user_type, user_id):
 
 
 def get_schedule(school_id, user_type, user_id):
-    # Debugging message
-    print("Getting schedule for user: {} {} at school: {}".format(user_type,
-                                                                  user_id,
-                                                                  school_id))
     if not _user_exists(school_id, user_type, user_id):
         raise UserDoesNotExistError("Couldn't find user - school: {}, "
                                     "type: {}, id: {} - in Lectio.".format(
