@@ -82,7 +82,7 @@ class Lesson(object):
 
 
 def schedules_are_identical(schedule1, schedule2):
-    # Check if all lessons in each schedule, have a corresponding
-    # lesson in the other schedule
+    # Todo: Currently only tests if the same elements exist
+    # not if anything has changed within them.
     return all(lesson in schedule1 for lesson in schedule2) and \
            all(lesson in schedule2 for lesson in schedule1)

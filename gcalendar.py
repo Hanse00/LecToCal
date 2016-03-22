@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import dateutil.parser
 import lesson
 import datetime
 import apiclient.discovery
@@ -122,8 +123,7 @@ def _get_status_from_color(colorId):
 
 
 def _get_datetime_from_field(field):
-    return datetime.datetime(
-        *(datetime.datetime.strptime(field, "%Y-%m-%dT%H:%M:%S:%z")[0:6]))
+    return dateutil.parser.parse(field, ignoretz=True)
 
 
 def _get_date_from_field(field):
