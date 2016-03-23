@@ -39,6 +39,11 @@ def get_arguments():
                         default="Lectio",
                         help="Name to use for the calendar inside "
                         "Google Calendar (default: Lectio)")
+    parser.add_argument("--weeks",
+                        type=int,
+                        default=4,
+                        help="Number of weeks to parse the schedule for. "
+                        "(default: 4)")
 
     arguments = vars(parser.parse_args())
     return arguments
@@ -51,9 +56,11 @@ def main():
         gcalendar.create_calendar(google_credentials, arguments["calendar"])
     lectio_schedule = lectio.get_schedule(arguments["school_id"],
                                           arguments["user_type"],
-                                          arguments["user_id"])
+                                          arguments["user_id"],
+                                          arguments["weeks"])
     google_schedule = gcalendar.get_schedule(google_credentials,
-                                             arguments["calendar"])
+                                             arguments["calendar"],
+                                             arguments["weeks"])
     if not lesson.schedules_are_identical(lectio_schedule, google_schedule):
         print("Schedule needs updating")
         gcalendar.update_calendar_with_schedule(google_credentials,

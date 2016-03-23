@@ -152,11 +152,11 @@ def _parse_events_to_schedule(events):
     return schedule
 
 
-def get_schedule(google_credentials, calendar_name):
+def get_schedule(google_credentials, calendar_name, n_weeks):
     service = _get_calendar_service(google_credentials)
     calendar_id = _get_calendar_id_for_name(google_credentials, calendar_name)
     start = _get_first_time_of_week()
-    end = _get_last_time_in_n_weeks(3)
+    end = _get_last_time_in_n_weeks(n_weeks)
     events = _get_events_in_date_range(service, calendar_id, start, end)
     return _parse_events_to_schedule(events)
 

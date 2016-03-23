@@ -195,9 +195,9 @@ def _filter_for_duplicates(schedule):
     return filtered_schedule
 
 
-def _retreive_user_schedule(school_id, user_type, user_id):
+def _retreive_user_schedule(school_id, user_type, user_id, n_weeks):
     schedule = []
-    for week_offset in range(4):
+    for week_offset in range(n_weeks + 1):
         week = _get_lectio_weekformat_with_offset(week_offset)
         week_schedule = _retreive_week_schedule(school_id,
                                                 user_type,
@@ -213,9 +213,9 @@ def _user_exists(school_id, user_type, user_id):
     return r.status_code == requests.codes.ok
 
 
-def get_schedule(school_id, user_type, user_id):
+def get_schedule(school_id, user_type, user_id, n_weeks):
     if not _user_exists(school_id, user_type, user_id):
         raise UserDoesNotExistError("Couldn't find user - school: {}, "
                                     "type: {}, id: {} - in Lectio.".format(
                                         school_id, user_type, user_id))
-    return _retreive_user_schedule(school_id, user_type, user_id)
+    return _retreive_user_schedule(school_id, user_type, user_id, n_weeks)
