@@ -68,8 +68,7 @@ class Lesson(object):
 
     def __eq__(self, other):
         if type(self) == type(other):
-            if self.id == other.id:
-                return True
+            return self.__dict__ == other.__dict__
         return False
 
     def __ne__(self, other):
@@ -82,7 +81,5 @@ class Lesson(object):
 
 
 def schedules_are_identical(schedule1, schedule2):
-    # Todo: Currently only tests if the same elements exist
-    # not if anything has changed within them.
     return all(lesson in schedule1 for lesson in schedule2) and \
            all(lesson in schedule2 for lesson in schedule1)

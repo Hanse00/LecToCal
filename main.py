@@ -60,6 +60,7 @@ def main():
                                                 arguments["calendar"],
                                                 google_schedule,
                                                 lectio_schedule)
+        print("Schedule updated!")
     else:
         print("Schedule does not need updating")
 

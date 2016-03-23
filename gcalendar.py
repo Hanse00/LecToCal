@@ -127,7 +127,7 @@ def _get_datetime_from_field(field):
 
 
 def _get_date_from_field(field):
-    datetime.datetime.strptime(field, "%Y-%m-%d").date()
+    return dateutil.parser.parse(field, ignoretz=True).date()
 
 
 def _parse_event_to_lesson(event):
@@ -185,21 +185,25 @@ def _update_lesson(service, calendar_id, lesson):
 
 
 def _delete_removed_lessons(service, calendar_id, old_schedule, new_schedule):
-    for lesson in old_schedule:
-        if lesson not in new_schedule:
-            _delete_lesson(service, calendar_id, lesson.id)
+    for old_lesson in old_schedule:
+        if not any(new_lesson.id == old_lesson.id
+                   for new_lesson in new_schedule):
+            _delete_lesson(service, calendar_id, old_lesson.id)
 
 
 def _add_new_lessons(service, calendar_id, old_schedule, new_schedule):
-    for lesson in new_schedule:
-        if lesson not in old_schedule:
-            _add_lesson(service, calendar_id, lesson)
+    for new_lesson in new_schedule:
+        if not any(old_lesson.id == new_lesson.id
+                   for old_lesson in old_schedule):
+            _add_lesson(service, calendar_id, new_lesson)
 
 
 def _update_current_lessons(service, calendar_id, old_schedule, new_schedule):
     for new_lesson in new_schedule:
-        if new_lesson in old_schedule:
-            _update_lesson(service, calendar_id, new_lesson)
+        for old_lesson in old_schedule:
+            if new_lesson.id == old_lesson.id:
+                if new_lesson != old_lesson:
+                    _update_lesson(service, calendar_id, new_lesson)
 
 
 def update_calendar_with_schedule(google_credentials,

@@ -112,7 +112,7 @@ def _get_time_from_line(line):
     # 2 - start time
     # 3 - end date
     # 4 - end time
-    match = re.search("(\d{1,2}/\d{1,2}-\d{4})(?: (\d{2}:\d{2}) til"
+    match = re.search("(\d{1,2}/\d{1,2}-\d{4})(?: (\d{2}:\d{2}) til "
                       "(\d{1,2}/\d{1,2}-\d{4})? ?(\d{2}:\d{2}))?", line)
     if match is None:
         raise InvalidTimeLineError("No time found in line: '{}'".format(line))
