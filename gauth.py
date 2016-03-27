@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import oauth2client.file
+import oauth2client.client
+import oauth2client.tools
 
 
 class CredentialsMissingError(Exception):
@@ -36,3 +39,41 @@ def get_credentials(credentials_store):
         raise CredentialsMissingError("No credentials found at: {}"
                                       .format(credentials_store))
     return _retreive_credentials(credentials_store)
+
+
+def _get_arguments():
+    parser = argparse.ArgumentParser(description="Generate Google OAuth "
+                                     "credentials for user.")
+    parser.add_argument("--client_secret",
+                        type=str,
+                        default="client_secret.json",
+                        help="File storing the OAuth client secret. "
+                        "(defalut: client_secret.json)"
+                        )
+    parser.add_argument("--credentials",
+                        type=str,
+                        default="storage.json",
+                        help="File location for saving generated credentials. "
+                        "(default: storage.json)")
+    parser.add_argument("-s", "--scopes",
+                        type=str,
+                        nargs="+",
+                        default=["https://www.googleapis.com/auth/calendar"],
+                        help="OAuth scopes to request for the given user. "
+                        "(default: https://www.googleapis.com/auth/calendar)")
+    arguments = vars(parser.parse_args())
+    return arguments
+
+
+def generate_credentials(client_secret, credentials_storage, scopes):
+    store = oauth2client.file.Storage(credentials_storage)
+    flow = oauth2client.client.flow_from_clientsecrets(client_secret, scopes)
+    flags = oauth2client.tools.argparser.parse_args(args=[])
+    oauth2client.tools.run_flow(flow, store, flags)
+
+
+if __name__ == '__main__':
+    arguments = _get_arguments()
+    generate_credentials(arguments["client_secret"],
+                         arguments["credentials"],
+                         arguments["scopes"])

@@ -19,26 +19,27 @@ import lesson
 import gcalendar
 
 
-def get_arguments():
+def _get_arguments():
     parser = argparse.ArgumentParser(description="Scrapes a Lectio schedule "
                                      "and syncs it to Google Calendar.")
     parser.add_argument("school_id",
                         type=int,
-                        help="ID of the school user belongs to in Lectio")
+                        help="ID of the school user belongs to in Lectio.")
     parser.add_argument("user_type",
                         choices=["student", "teacher"],
-                        help="User type in Lectio (options: student, teacher)")
+                        help="User type in Lectio. "
+                        "(options: student, teacher)")
     parser.add_argument("user_id",
                         type=int,
-                        help="User's ID in Lectio")
+                        help="User's ID in Lectio.")
     parser.add_argument("--credentials",
                         default="storage.json",
                         help="Path to the file storing the Google "
-                        "OAuth credentials (default: storage.json)")
+                        "OAuth credentials. (default: storage.json)")
     parser.add_argument("--calendar",
                         default="Lectio",
                         help="Name to use for the calendar inside "
-                        "Google Calendar (default: Lectio)")
+                        "Google Calendar. (default: Lectio)")
     parser.add_argument("--weeks",
                         type=int,
                         default=4,
@@ -50,7 +51,7 @@ def get_arguments():
 
 
 def main():
-    arguments = get_arguments()
+    arguments = _get_arguments()
     google_credentials = gauth.get_credentials(arguments["credentials"])
     if not gcalendar.has_calendar(google_credentials, arguments["calendar"]):
         gcalendar.create_calendar(google_credentials, arguments["calendar"])
