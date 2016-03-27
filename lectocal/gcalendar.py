@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import dateutil.parser
-import lesson
 import datetime
-import apiclient.discovery
 from httplib2 import Http
+import dateutil.parser
+import apiclient.discovery
 import pytz
+from . import lesson
 
 SERVICE_NAME = "calendar"
 SERVICE_VERSION = "v3"

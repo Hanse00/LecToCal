@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import lesson
 import datetime
 import re
 import requests
 from lxml import html
+from . import lesson
 
 
 USER_TYPE = {"student": "elev", "teacher": "laerer"}

@@ -13,10 +13,10 @@
 # limitations under the License.
 
 import argparse
-import gauth
-import lectio
-import lesson
-import gcalendar
+from . import gauth
+from . import lectio
+from . import lesson
+from . import gcalendar
 
 
 def _get_arguments():
