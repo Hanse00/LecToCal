@@ -7,3 +7,8 @@ storage.json
 
 # Don't version cached python files
 __pycache__/
+
+# Don't sync build related files
+build/
+dist/
+*.egg-info

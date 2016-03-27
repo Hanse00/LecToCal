@@ -72,8 +72,11 @@ def generate_credentials(client_secret, credentials_storage, scopes):
     oauth2client.tools.run_flow(flow, store, flags)
 
 
-if __name__ == '__main__':
+def main():
     arguments = _get_arguments()
     generate_credentials(arguments["client_secret"],
                          arguments["credentials"],
                          arguments["scopes"])
+
+if __name__ == '__main__':
+    main()

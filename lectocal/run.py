@@ -63,14 +63,10 @@ def main():
                                              arguments["calendar"],
                                              arguments["weeks"])
     if not lesson.schedules_are_identical(lectio_schedule, google_schedule):
-        print("Schedule needs updating")
         gcalendar.update_calendar_with_schedule(google_credentials,
                                                 arguments["calendar"],
                                                 google_schedule,
                                                 lectio_schedule)
-        print("Schedule updated!")
-    else:
-        print("Schedule does not need updating")
 
 if __name__ == "__main__":
     main()
