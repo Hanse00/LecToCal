@@ -43,6 +43,11 @@ setup(
         "pytz",
         "python-dateutil"
     ],
+    package_data={
+        "lectocal": [
+            "client_secret.json",
+        ]
+    },
     entry_points={
         "console_scripts": [
             "lectocal.run=lectocal.run:main",
