@@ -29,7 +29,10 @@ setup(
 
         # Environment Type
         "Environment :: No Input/Output (Daemon)",
-        "Environment :: Web Environment"
+        "Environment :: Web Environment",
+
+        # License
+        "License :: OSI Approved :: Apache Software License"
     ],
     keywords="lectio google calendar sync utility",
     packages=find_packages(),
