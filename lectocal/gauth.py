@@ -43,7 +43,8 @@ def get_credentials(credentials_store):
 
 def _get_arguments():
     parser = argparse.ArgumentParser(description="Generate Google OAuth "
-                                     "credentials for user.")
+                                     "credentials for user.",
+                                     parents=[oauth2client.tools.argparser])
     parser.add_argument("--client_secret",
                         type=str,
                         default="client_secret.json",
@@ -61,22 +62,21 @@ def _get_arguments():
                         default=["https://www.googleapis.com/auth/calendar"],
                         help="OAuth scopes to request for the given user. "
                         "(default: https://www.googleapis.com/auth/calendar)")
-    arguments = vars(parser.parse_args())
-    return arguments
+    return parser.parse_args()
 
 
-def generate_credentials(client_secret, credentials_storage, scopes):
+def generate_credentials(client_secret, credentials_storage, scopes, flags):
     store = oauth2client.file.Storage(credentials_storage)
     flow = oauth2client.client.flow_from_clientsecrets(client_secret, scopes)
-    flags = oauth2client.tools.argparser.parse_args(args=[])
     oauth2client.tools.run_flow(flow, store, flags)
 
 
 def main():
     arguments = _get_arguments()
-    generate_credentials(arguments["client_secret"],
-                         arguments["credentials"],
-                         arguments["scopes"])
+    generate_credentials(arguments.client_secret,
+                         arguments.credentials,
+                         arguments.scopes,
+                         arguments)
 
 if __name__ == '__main__':
     main()
