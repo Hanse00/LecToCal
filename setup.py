@@ -24,11 +24,12 @@ setup(
         "Topic :: Utilities",
 
         # Supported Versions
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.5",
 
         # Environment Type
-        "Environment :: No Input/Output (Daemon)"
+        "Environment :: No Input/Output (Daemon)",
+        "Environment :: Web Environment"
     ],
     keywords="lectio google calendar sync utility",
     packages=find_packages(),

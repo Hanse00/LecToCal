@@ -2,7 +2,7 @@
 venv/
 
 # Don't version client secrets and user credentials
-client_secret.json
+dev_client_secret.json
 storage.json
 
 # Don't version cached python files

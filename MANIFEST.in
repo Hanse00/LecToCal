@@ -1,1 +1,5 @@
+# Package should include the software license
 include LICENSE
+
+# and the client secret required to run the modules
+include client_secret.json
