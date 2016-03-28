@@ -33,9 +33,9 @@ def _get_arguments():
                         type=int,
                         help="User's ID in Lectio.")
     parser.add_argument("--credentials",
-                        default="~/storage.json",
+                        default="storage.json",
                         help="Path to the file storing the Google "
-                        "OAuth credentials. (default: ~/storage.json)")
+                        "OAuth credentials. (default: storage.json)")
     parser.add_argument("--calendar",
                         default="Lectio",
                         help="Name to use for the calendar inside "
