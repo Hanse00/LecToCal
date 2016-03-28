@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pkg_resources
 import argparse
 import oauth2client.file
 import oauth2client.client
@@ -45,13 +46,7 @@ def _get_arguments():
     parser = argparse.ArgumentParser(description="Generate Google OAuth "
                                      "credentials for user.",
                                      parents=[oauth2client.tools.argparser])
-    parser.add_argument("--client_secret",
-                        type=str,
-                        default="client_secret.json",
-                        help="File storing the OAuth client secret. "
-                        "(defalut: client_secret.json)"
-                        )
-    parser.add_argument("--credentials",
+    parser.add_argument("-c", "--credentials",
                         type=str,
                         default="storage.json",
                         help="File location for saving generated credentials. "
@@ -65,6 +60,10 @@ def _get_arguments():
     return parser.parse_args()
 
 
+def _get_client_secret_path():
+    return pkg_resources.resource_filename(__name__, "client_secret.json")
+
+
 def generate_credentials(client_secret, credentials_storage, scopes, flags):
     store = oauth2client.file.Storage(credentials_storage)
     flow = oauth2client.client.flow_from_clientsecrets(client_secret, scopes)
@@ -73,7 +72,7 @@ def generate_credentials(client_secret, credentials_storage, scopes, flags):
 
 def main():
     arguments = _get_arguments()
-    generate_credentials(arguments.client_secret,
+    generate_credentials(_get_client_secret_path(),
                          arguments.credentials,
                          arguments.scopes,
                          arguments)
