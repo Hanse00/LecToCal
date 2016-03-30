@@ -6,7 +6,7 @@ with open("README.rst", encoding="utf-8") as f:
 
 setup(
     name="lectocal",
-    version="1.0.0a2",
+    version="1.0.0a3",
     description="Syncronize Lectio schedules to Google Calendar.",
     long_description=long_description,
     url="https://github.com/Hanse00/LecToCal",
