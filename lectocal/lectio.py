@@ -38,9 +38,9 @@ class InvalidStatusError(Exception):
 class InvalidTimeLineError(Exception):
     """ The line doesn't include any valid formatting of time. """
 
+
 class InvalidLocationError(Exception):
     """ The line doesn't include any location. """
-
 
 
 def _get_user_page(school_id, user_type, user_id, week=""):
@@ -76,6 +76,7 @@ def _is_status_line(line):
     match = re.search("Ændret!|Aflyst!", line)
     return match is not None
 
+
 def _is_location_line(line):
     match = re.search("Lokaler?: ", line)
     return match is not None
@@ -103,8 +104,10 @@ def _get_status_from_line(line):
 def _get_location_from_line(line):
     match = re.search("Lokaler?: (.*)", line)
     if match is None:
-        raise InvalidLocationError("No location found in line: '{}'".format(line))
+        raise InvalidLocationError("No location found in line: '{}'"
+                                   .format(line))
     return match.group(1)
+
 
 def _get_date_from_match(match):
     if match:
