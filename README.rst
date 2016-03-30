@@ -187,6 +187,13 @@ Invoking the script will therefor look like this:
 
     run 523 student 2486079338
 
+Note
+....
+
+The automatically generated calendar in Google Calendar should not be manually
+edited. Editing in this calendar may either cause lectocal to remove your
+changes, or behave in other unexpected ways.
+
 License
 -------
 LecToCal is licensed under the Apache 2.0 license, see LICENSE_ or
