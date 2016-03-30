@@ -142,7 +142,11 @@ def _parse_event_to_lesson(event):
         end = _get_datetime_from_field(event["end"]["dateTime"])
     else:
         end = _get_date_from_field(event["end"]["date"])
-    return lesson.Lesson(id, summary, status, start, end)
+    if "location" in event:
+        location = event["location"]
+    else:
+        location = None
+    return lesson.Lesson(id, summary, status, start, end, location)
 
 
 def _parse_events_to_schedule(events):

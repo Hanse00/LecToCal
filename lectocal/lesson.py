@@ -20,11 +20,12 @@ STATUS_COLORS = {"normal": "10", "changed": "5", "cancelled": "11"}
 
 
 class Lesson(object):
-    def __init__(self, id, summary, status, start, end):
+    def __init__(self, id, summary, status, start, end, location):
         self.summary = summary
         self.status = status or "normal"
         self.start = start
         self.end = end
+        self.location = location
 
         if id is None:
             self.id = self._gen_id()
@@ -41,7 +42,9 @@ class Lesson(object):
             },
             "end": {
                 "timeZone": "Europe/Copenhagen"
-            }
+            },
+            "location": None
+
         }
 
         formatted = copy.deepcopy(TEMPLATE)
@@ -56,11 +59,13 @@ class Lesson(object):
             formatted["end"]["dateTime"] = self.end.isoformat()
         else:
             formatted["end"]["date"] = self.end.isoformat()
+        formatted["location"] = self.location
         return formatted
 
     def _gen_id(self):
         lesson_string = str(self.summary) + str(self.status) + \
-                        str(self.start) + str(self.end)
+                        str(self.start) + str(self.end) + \
+                        str(self.location)
         hasher = hashlib.sha256()
         hasher.update(bytes(lesson_string, "utf8"))
         hash_value = hasher.hexdigest()
@@ -77,7 +82,7 @@ class Lesson(object):
     def __repr__(self):
         return str({"id": self.id, "summary": self.summary,
                     "status": self.status, "start": self.start,
-                    "end": self.end})
+                    "end": self.end, "location": self.location})
 
 
 def schedules_are_identical(schedule1, schedule2):

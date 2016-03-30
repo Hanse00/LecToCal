@@ -38,6 +38,10 @@ class InvalidStatusError(Exception):
 class InvalidTimeLineError(Exception):
     """ The line doesn't include any valid formatting of time. """
 
+class InvalidLocationError(Exception):
+    """ The line doesn't include any location. """
+
+
 
 def _get_user_page(school_id, user_type, user_id, week=""):
     URL_TEMPLATE = "http://www.lectio.dk/lectio/{0}/" \
@@ -72,6 +76,10 @@ def _is_status_line(line):
     match = re.search("Ændret!|Aflyst!", line)
     return match is not None
 
+def _is_location_line(line):
+    match = re.search("Lokaler?: ", line)
+    return match is not None
+
 
 def _is_time_line(line):
     # Search for one of the following formats:
@@ -91,6 +99,12 @@ def _get_status_from_line(line):
     except KeyError:
         raise InvalidStatusError("Line: '{}' has no valid status".format(line))
 
+
+def _get_location_from_line(line):
+    match = re.search("Lokaler?: (.*)", line)
+    if match is None:
+        raise InvalidLocationError("No location found in line: '{}'".format(line))
+    return match.group(1)
 
 def _get_date_from_match(match):
     if match:
@@ -147,16 +161,18 @@ def _add_line_to_summary(line, summary):
 
 def _get_info_from_title(title):
     summary = ""
-    status = start_time = end_time = None
+    status = start_time = end_time = location = None
     lines = title.split("\n")
     for line in lines:
         if _is_status_line(line):
             status = _get_status_from_line(line)
         elif _is_time_line(line):
             start_time, end_time = _get_time_from_line(line)
+        elif _is_location_line(line):
+            location = _get_location_from_line(line)
         else:
             summary = _add_line_to_summary(line, summary)
-    return summary, status, start_time, end_time
+    return summary, status, start_time, end_time, location
 
 
 def _parse_element_to_lesson(element):
@@ -164,9 +180,9 @@ def _parse_element_to_lesson(element):
     id = None
     if link:
         id = _get_id_from_link(link)
-    summary, status, start_time, end_time = \
+    summary, status, start_time, end_time, location = \
         _get_info_from_title(element.get("title"))
-    return lesson.Lesson(id, summary, status, start_time, end_time)
+    return lesson.Lesson(id, summary, status, start_time, end_time, location)
 
 
 def _parse_page_to_lessons(page):
