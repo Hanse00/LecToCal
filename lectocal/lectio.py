@@ -167,7 +167,9 @@ def _get_info_from_title(title):
     status = start_time = end_time = location = None
     lines = title.split("\n")
     for line in lines:
-        if _is_status_line(line):
+        if line == "":
+            break
+        elif _is_status_line(line):
             status = _get_status_from_line(line)
         elif _is_time_line(line):
             start_time, end_time = _get_time_from_line(line)
