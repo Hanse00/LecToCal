@@ -146,7 +146,11 @@ def _parse_event_to_lesson(event):
         location = event["location"]
     else:
         location = None
-    return lesson.Lesson(id, summary, status, start, end, location)
+    if "description" in event:
+        description = event["description"]
+    else:
+        description = None
+    return lesson.Lesson(id, summary, status, start, end, location, description)
 
 
 def _parse_events_to_schedule(events):

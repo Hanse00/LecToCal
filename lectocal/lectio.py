@@ -155,27 +155,41 @@ def _get_time_from_line(line):
     return start, end
 
 
-def _add_line_to_summary(line, summary):
-    if summary != "":
-        summary += "\n"
-    summary += line
+def _add_line_to_text(line, text):
+    if text != "":
+        text += "\n"
+    text += line
+    return text
+
+
+def _add_section_to_summary(section, summary):
+    if summary != "" and section != "":
+        summary += " " + u"\u2022" + " "
+    summary += section
     return summary
 
 
 def _get_info_from_title(title):
-    summary = ""
+    summary = description = ""
     status = start_time = end_time = location = None
-    lines = title.split("\n")
+    lines = title.splitlines()
+    headerSection = True
     for line in lines:
-        if _is_status_line(line):
-            status = _get_status_from_line(line)
-        elif _is_time_line(line):
-            start_time, end_time = _get_time_from_line(line)
-        elif _is_location_line(line):
-            location = _get_location_from_line(line)
+        if headerSection:
+            if line == '':
+                headerSection = False
+                continue
+            if _is_status_line(line):
+                status = _get_status_from_line(line)
+            elif _is_time_line(line):
+                start_time, end_time = _get_time_from_line(line)
+            elif _is_location_line(line):
+                location = _get_location_from_line(line)
+            else:
+                summary = _add_section_to_summary(line, summary)
         else:
-            summary = _add_line_to_summary(line, summary)
-    return summary, status, start_time, end_time, location
+            description = _add_line_to_text(line, description)
+    return summary, status, start_time, end_time, location, description
 
 
 def _parse_element_to_lesson(element):
@@ -183,9 +197,9 @@ def _parse_element_to_lesson(element):
     id = None
     if link:
         id = _get_id_from_link(link)
-    summary, status, start_time, end_time, location = \
+    summary, status, start_time, end_time, location, description = \
         _get_info_from_title(element.get("title"))
-    return lesson.Lesson(id, summary, status, start_time, end_time, location)
+    return lesson.Lesson(id, summary, status, start_time, end_time, location, description)
 
 
 def _parse_page_to_lessons(page):
