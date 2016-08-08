@@ -65,7 +65,8 @@ class Lesson(object):
             formatted["end"]["date"] = self.end.isoformat()
         formatted["location"] = self.location
         formatted["description"] = self.description
-        formatted["source"]["url"] = self.link
+        if self.link is not None:
+            formatted["source"]["url"] = self.link
         return formatted
 
     def _gen_id(self):
