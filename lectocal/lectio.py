@@ -71,6 +71,9 @@ def _get_id_from_link(link):
                                     link))
     return match.group(1)
 
+def _get_complete_link(link):
+    return "http://www.lectio.dk" + link.split("&prevurl=", 1)[0]
+
 
 def _is_status_line(line):
     match = re.search("Ændret!|Aflyst!", line)
@@ -197,9 +200,10 @@ def _parse_element_to_lesson(element):
     id = None
     if link:
         id = _get_id_from_link(link)
+        link = _get_complete_link(link)
     summary, status, start_time, end_time, location, description = \
         _get_info_from_title(element.get("title"))
-    return lesson.Lesson(id, summary, status, start_time, end_time, location, description)
+    return lesson.Lesson(id, summary, status, start_time, end_time, location, description, link)
 
 
 def _parse_page_to_lessons(page):
