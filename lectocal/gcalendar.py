@@ -150,7 +150,11 @@ def _parse_event_to_lesson(event):
         description = event["description"]
     else:
         description = None
-    return lesson.Lesson(id, summary, status, start, end, location, description)
+    if "source" in event and "url" in event["source"]:
+        link = event["source"]["url"]
+    else:
+        link = None
+    return lesson.Lesson(id, summary, status, start, end, location, description, link)
 
 
 def _parse_events_to_schedule(events):
