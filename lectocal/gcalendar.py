@@ -17,6 +17,7 @@ from httplib2 import Http
 import dateutil.parser
 import apiclient.discovery
 import pytz
+from googleapiclient.errors import HttpError
 from . import lesson
 
 SERVICE_NAME = "calendar"
@@ -181,10 +182,17 @@ def _delete_lesson(service, calendar_id, lesson_id):
 
 
 def _add_lesson(service, calendar_id, lesson):
-    service \
-        .events() \
-        .insert(calendarId=calendar_id, body=lesson.to_gcalendar_format()) \
-        .execute()
+    try:
+        service \
+            .events() \
+            .insert(calendarId=calendar_id, body=lesson.to_gcalendar_format()) \
+            .execute()
+    except HttpError as err:
+        #Status code 409 is conflict. In this case, it means the id already exists.
+        if err.resp.status == 409:
+            _update_lesson(service, calendar_id, lesson)
+        else:
+            raise err
 
 
 def _update_lesson(service, calendar_id, lesson):
