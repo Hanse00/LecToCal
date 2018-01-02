@@ -202,7 +202,7 @@ def _parse_element_to_lesson(element):
         id = _get_id_from_link(link)
         link = _get_complete_link(link)
     summary, status, start_time, end_time, location, description = \
-        _get_info_from_title(element.get("title"))
+        _get_info_from_title(element.get("data-additionalinfo"))
     return lesson.Lesson(id, summary, status, start_time, end_time, location, description, link)
 
 
