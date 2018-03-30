@@ -44,7 +44,7 @@ class InvalidLocationError(Exception):
 
 
 def _get_user_page(school_id, user_type, user_id, week=""):
-    URL_TEMPLATE = "http://www.lectio.dk/lectio/{0}/" \
+    URL_TEMPLATE = "https://www.lectio.dk/lectio/{0}/" \
                    "SkemaNy.aspx?type={1}&{1}id={2}&week={3}"
 
     r = requests.get(URL_TEMPLATE.format(school_id,
@@ -65,14 +65,14 @@ def _get_lectio_weekformat_with_offset(offset):
 
 
 def _get_id_from_link(link):
-    match = re.search("absid=(\d+)", link)
+    match = re.search("absid|ProeveholdId=(\d+)", link)
     if match is None:
         raise IdNotFoundInLinkError("Couldn't find id in link: {}".format(
                                     link))
     return match.group(1)
 
 def _get_complete_link(link):
-    return "http://www.lectio.dk" + link.split("&prevurl=", 1)[0]
+    return "https://www.lectio.dk" + link.split("&prevurl=", 1)[0]
 
 
 def _is_status_line(line):
