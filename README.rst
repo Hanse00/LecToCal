@@ -11,7 +11,7 @@ institutions using lectio to stay on top of their schedules, by allowing
 the use of features such as email notifications, and push notifications
 on Android and iOS devices, together with the lectio schedule.
 
-.. _Lectio: http://www.lectio.dk/
+.. _Lectio: https://www.lectio.dk/
 .. _`Google Calendar`: https://calendar.google.com/
 
 Installation
@@ -161,7 +161,7 @@ The positional arguments are:
     in Lectio's system.
 
     It can be found by browsing to your school's front page (eg.
-    http://www.lectio.dk/lectio/523/default.aspx), the school id is the number
+    https://www.lectio.dk/lectio/523/default.aspx), the school id is the number
     in the page URL, in my case 523.
 
 - user_type
@@ -177,7 +177,7 @@ The positional arguments are:
     Both of these id types are used as user_id in lectocal.
 
     To find the id of a user, open their schedule page (eg.
-    http://www.lectio.dk/lectio/523/SkemaNy.aspx?type=elev&elevid=2486079338)
+    https://www.lectio.dk/lectio/523/SkemaNy.aspx?type=elev&elevid=2486079338)
     the user id number, is the number behind elevid= or laererid= depending
     on the user type, in this case 2486079338.
 
