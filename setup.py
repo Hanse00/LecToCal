@@ -6,13 +6,14 @@ with open("README.rst", encoding="utf-8") as f:
 
 setup(
     name="lectocal",
-    version="1.0.0a3",
+    version="1.0.0a4",
     description="Syncronize Lectio schedules to Google Calendar.",
     long_description=long_description,
     url="https://github.com/Hanse00/LecToCal",
-    author="Philip Peder Hansen",
-    author_email="me@philiphansen.dk",
+    author="Philip Mallegol-Hansen",
+    author_email="philip@mallegolhansen.com",
     license="Apache 2.0",
+    python_requires=">=3",
     classifiers=[
         # Development Status
         "Development Status :: 3 - Alpha",
