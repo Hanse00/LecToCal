@@ -1,14 +1,15 @@
 from setuptools import setup, find_packages
 from codecs import open
 
-with open("README.rst", encoding="utf-8") as f:
-    long_description = f.read()
+def readme():
+    with open("README.rst", encoding="utf-8") as f:
+        return f.read()
 
 setup(
     name="lectocal",
-    version="1.0.0a4",
+    version="1.0.0a5",
     description="Syncronize Lectio schedules to Google Calendar.",
-    long_description=long_description,
+    long_description=readme(),
     url="https://github.com/Hanse00/LecToCal",
     author="Philip Mallegol-Hansen",
     author_email="philip@mallegolhansen.com",

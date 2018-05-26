@@ -5,6 +5,7 @@ name = "pypi"
 
 [dev-packages]
 pylint = "*"
+twine = "*"
 
 [packages]
 google-api-python-client = "*"
