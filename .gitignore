@@ -15,3 +15,6 @@ __pycache__/
 build/
 dist/
 *.egg-info
+
+# Don't sync VS Code configuration
+.vscode/
