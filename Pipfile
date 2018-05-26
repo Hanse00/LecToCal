@@ -7,6 +7,11 @@ name = "pypi"
 pylint = "*"
 
 [packages]
+google-api-python-client = "*"
+requests = "*"
+lxml = "*"
+python-dateutil = "*"
+pytz = "*"
 
 [requires]
 python_version = "3.6"
