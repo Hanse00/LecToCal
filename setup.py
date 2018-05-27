@@ -7,12 +7,13 @@ def readme():
 
 setup(
     name="lectocal",
-    version="1.0.0",
+    version="1.0.1",
     author="Philip 'Hanse00' Mallegol-Hansen",
     author_email="philip@mallegolhansen.com",
     url="https://github.com/Hanse00/LecToCal",
     description="Syncronize Lectio schedules to Google Calendar.",
     long_description=readme(),
+    long_description_content_type='text/markdown',
     license="Apache 2.0",
     python_requires=">=3",
     classifiers=[
