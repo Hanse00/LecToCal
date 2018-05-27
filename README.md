@@ -95,6 +95,13 @@ For bugs or pull requests, please use the builtin GitHub issue tracker.
 
 For everything else use lectocal@googlegroups.com.
 
+## Donations
+
+If you'd like to buy me a coffee - Awesome!
+If you're not in a position to do that, please enjoy the software just the same - It's free for a reason.
+
+Currently I accept BTC at: 3P4bzcKTvkz4Ey3QrAdiPa1zBKWVwsVqMb
+
 ## License
 
 LecToCal is licensed under the Apache 2.0 license, see [LICENSE](LICENSE) or
