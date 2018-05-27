@@ -1,9 +1,10 @@
-# Don't version client secrets and user credentials
-dev_client_secret.json
+# Don't version user oauth credentials
+# These are generated per user, and will be generated on your system
 storage.json
 
-# Don't version cached python files
+# Don't version cached or compiled python files
 __pycache__/
+*.pyc
 
 # Don't sync build related files
 build/
