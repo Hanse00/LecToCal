@@ -6,6 +6,8 @@ name = "pypi"
 [dev-packages]
 pylint = "*"
 twine = "*"
+coverage = "*"
+coveralls = "*"
 
 [packages]
 google-api-python-client = "*"
