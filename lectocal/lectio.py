@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import backoff
 import datetime
 import re
 import requests
@@ -42,7 +43,9 @@ class InvalidTimeLineError(Exception):
 class InvalidLocationError(Exception):
     """ The line doesn't include any location. """
 
-
+@backoff.on_exception(backoff.expo,
+                      requests.exceptions.RequestException,
+                      max_time=10)
 def _get_user_page(school_id, user_type, user_id, week=""):
     URL_TEMPLATE = "https://www.lectio.dk/lectio/{0}/" \
                    "SkemaNy.aspx?type={1}&{1}id={2}&week={3}"
@@ -235,6 +238,7 @@ def _filter_for_duplicates(schedule):
 def _retreive_user_schedule(school_id, user_type, user_id, n_weeks):
     schedule = []
     for week_offset in range(n_weeks + 1):
+        # todo: This should start n parallel processes.
         week = _get_lectio_weekformat_with_offset(week_offset)
         week_schedule = _retreive_week_schedule(school_id,
                                                 user_type,
