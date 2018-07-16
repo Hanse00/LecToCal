@@ -8,7 +8,8 @@ def find_cakes(module):
     cakes = []
     for klass in dir(module):
         attribute = getattr(module, klass)
-        if inspect.isclass(attribute) and issubclass(attribute, Cake):
+        if (inspect.isclass(attribute) and issubclass(attribute, Cake) and 
+        attribute != Cake):
             cakes.append(attribute)
     return cakes
 
