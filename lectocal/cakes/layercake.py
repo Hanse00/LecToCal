@@ -1,10 +1,10 @@
 from .cake import Cake
 
-class Brownie(Cake):
+class Layercake(Cake):
     @staticmethod
     def get_name():
-        return "Brownie"
+        return "Layercake"
 
     @staticmethod
     def get_taste():
-        return "Great!"
+        return "like layers of sweetness."
