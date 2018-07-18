@@ -6,6 +6,7 @@ import secondary
 FLAGS = flags.FLAGS
 
 flags.DEFINE_integer("cakes", 2, "How many cakes would you like?")
+flags.DEFINE_bool("like", False, "A duplicate flag.")
 
 
 def main(argv):
