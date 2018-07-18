@@ -1,18 +1,21 @@
+import importlib
+
 from absl import app
 from absl import flags
 
-import secondary
-
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer("cakes", 2, "How many cakes would you like?")
-
+flags.DEFINE_enum("cake",
+                  "cakes.brownie",
+                  ["cakes.brownie", "cakes.layercake"],
+                  "Which cake would you like?")
 
 def main(argv):
     del argv
 
-    print("You opted for %d cake(s)." % FLAGS.cakes)
-    print(secondary.likes())
+    print("You opted for the %s cake." % FLAGS.cake)
+    module = importlib.import_module(FLAGS.cake)
+    print(module.get_details())
 
 
 if __name__ == "__main__":
