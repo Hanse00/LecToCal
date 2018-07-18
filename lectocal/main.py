@@ -1,6 +1,7 @@
 from absl import app
 from absl import flags
 
+import secondary
 
 FLAGS = flags.FLAGS
 
@@ -11,6 +12,7 @@ def main(argv):
     del argv
 
     print("You opted for %d cake(s)." % FLAGS.cakes)
+    print(secondary.likes())
 
 
 if __name__ == "__main__":
