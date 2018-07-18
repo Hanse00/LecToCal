@@ -15,6 +15,7 @@ requests = "*"
 lxml = "*"
 python-dateutil = "*"
 pytz = "*"
+absl-py = "*"
 
 [requires]
 python_version = "3.6"
