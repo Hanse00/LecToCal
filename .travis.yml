@@ -23,3 +23,7 @@ script:
 after_success:
   - coverage report
   - coveralls
+notifications:
+  email:
+    on_failure: always
+    on_success: never
