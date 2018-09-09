@@ -1,4 +1,4 @@
-# Copyright 2016 Philip Hansen
+# Copyright 2018 Philip Mallegol-Hansen
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -66,10 +66,10 @@ def _get_lectio_weekformat_with_offset(offset):
 
 def _get_id_from_link(link):
     match = re.search("(?:absid|ProeveholdId|outboundCensorID)=(\d+)", link)
-    if match is None:
-        raise IdNotFoundInLinkError("Couldn't find id in link: {}".format(
-                                    link))
-    return match.group(1)
+    if match:
+        return match.group(1)
+    return None
+
 
 def _get_complete_link(link):
     return "https://www.lectio.dk" + link.split("&prevurl=", 1)[0]
@@ -203,7 +203,8 @@ def _parse_element_to_lesson(element):
         link = _get_complete_link(link)
     summary, status, start_time, end_time, location, description = \
         _get_info_from_title(element.get("data-additionalinfo"))
-    return lesson.Lesson(id, summary, status, start_time, end_time, location, description, link)
+    return lesson.Lesson(id, summary, status, start_time, end_time, location,
+                         description, link)
 
 
 def _parse_page_to_lessons(page):
