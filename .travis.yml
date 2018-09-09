@@ -1,29 +1,46 @@
 language: python
 jobs:
-    include:
-        - python: 3.5
-        - python: 3.6
-        - python: 3.7
-          dist: xenial
-          sudo: true
-        - python: 3.8-dev
-          dist: xenial
-          sudo: true
-        - python: nightly
-          dist: xenial
-          sudo: true
+  include:
+  - python: 3.5
+  - python: 3.6
+  - python: 3.7
+    dist: xenial
+    sudo: true
+  - python: 3.8-dev
+    dist: xenial
+    sudo: true
+  - python: nightly
+    dist: xenial
+    sudo: true
 matrix:
-    allow_failures:
-        - python: nightly
+  allow_failures:
+  - python: nightly
 install:
-  - pip install pipenv
-  - pipenv install --dev
+- pip install pipenv
+- pipenv install --dev
 script:
-  - coverage run --branch --source lectocal -m unittest -v
+- coverage run --branch --source lectocal -m unittest -v
 after_success:
-  - coverage report
-  - coveralls
+- coverage report
+- coveralls
 notifications:
   email:
-    on_failure: always
-    on_success: never
+    secure: v7HlQ7FdvaLbaUDPsk3xbo0QCi9o1nSclbROOStoUxWSAhd7Wmm1F8wgvl6o2aRUaHANflEV9V0GTYOzbWgQL2VXB9E8WMNTPIJZYsX3GolviR/J7vaWHvRVZhlWnraiQWJ558yBHz2t5a1UonqQ7qETeRVzU7xFn95Jk2BdnuzK0dcs5IP6JBhjprpflk6JQdrMUyTymN83SO0i8s+0bTiZFpNs5wdHRMKqf2mtAbSFRqXbhrS6/jCBZ2Sw+6ZL8v7ypTUq8cIvxZCj8Ss57rzzCCthoP2AWp2rLOhQwSk52zTzlSALWz3MvJALeH8qnr6ou024ehaNjTeIdajMeYkQ5OZRyfdEJpRPP/DNCw0tlqVk8K4ehG6hLEZv0Sga5nt9rXwmvx5gcfiKURJenFCv0Q5SMCqF+dUg1YSo1EcybEdlPm68/y6ONLoaISyKkPLa4566zpYZRxst/Zr4QpC/pLh+I5ReLS8GVxCaJZ5ggLfDS+4icscXTEOFCmWqPzRnsQyT/pPH67K16KFpD+jsVEpFITFnvFPGZBisGpSUIWVlrOs0QjkKlvmiXDrzHfJ4eXioel36IriUj/engafG0ogXiarWma2mFwDOkyMTDMJYJnyTtNxnuGnYnvDAdPnCFXpe1HaZPwGQBaTFkSIERyfRi4QEI7yTSIeM4rE=
+before_deploy:
+  - "python setup.py sdist bdist_wheel"
+deploy:
+  - provider: pypi
+    user:
+      secure: hxm63QKG6b5psw1Qn0KbQ4J03gYI/ofXIvF5YFUBPV3UYTwFzGLk4XnKo+YLkSz7Seb+DgGaFMtxgVwPDOhBIY70V+cFLikaKc2EKefkPU95DmcdbybTtG05nTxcZXE1iSlVoYT+fyEGpuE/2bqLIPG0RmP8nWaWZB6vIKFMbb1Q01Kp7/L8m72UOI0z6gvmGYltw9mIwBQ8TinEnGmL0sdPrJ+VNmFIfjmBY4uCpFsSsnMIPM4W/6r8ACpy45QkHkuIgO4chl8FS1fBJiLWUjiUORceUbPo2rkPyMSRNK4R5XIVMqyC+yq6F3VYY8pGW0P2w4gruDhYJYZkt2rAQgcc6XhUxJLu7xLDs0eZ2E7fyNLjNeNOLaceVa65hZbkp1NdoqiTO/5BNy+W+SabmpOtZPmzBu+fRWimpTRpGIN68oT80B8vEGBQdVmqkSpKSJaunbfgQj4uEEHhWdl4e5CvB1AGB74E/c3IuzedUBxpVnyDWhWWMNesbr0uSO5O8wE7tidCSnpqgbNVMXFIucjpeqrFQCgDayy73ipf9AikL4Bfi/V4vwFQVISDQFD+AZ7IFEJpZBGuWSLS4fTVPDn/qgbrDI4qnb1ejNcKFix783G/a9hW0uVJOImQKr0xl6+mRWWlR0WiJcq0xgl2oKeWie1ZSCUSw1UuMEBNMcM=
+    password:
+      secure: NnYJ2rkzuTlb6DJ4PsugInoTsUkkp132hrjMdmgRQNHzY47Ktm09+1UgEy/eh6jvIBxLZGWu5OnSTFWbDUQtnuPwjm6NdCPmiZYbgYhrQ9U0t9lUb8esl/4/Ae5RkqxfgT3THzwn0rF0Q2v//IY9SvGYppQkzaYRPafChgMw150Q4B0Yc5n2BldgsMA1scAKiR1PdR03XNmvhEsoemtj+XEr0/w51h+2ZgjnTTw0p8ulY+3598Q3q6oxaK5yTRZTaj/4ixkZlVPfEDWSRtfo+s2lMim1LeqzHidaEus+3K0Ih3cY9Jk6LID541QofHUk5mzbHq7t5gUk2uMC29XcuOp6hvetV7Oky77gVDvzFxk8A4E+a6crwmu8QHplWVt2lUeBzJgJ0eOtUFk7fkGPkGK2RN1fqBF3HsWxkzaNKd3eaFdHUZVC/GTKViLrWfpIs1vL9gcbLNC57aEbaaaoYJlV2/FCj8LpKNEz6XjDo4PdN1JOLlhoSFeRh4zc1Ll1AhRyZI51CajFkqG5CLDLfiqF/TS/tZGqFPu7NFRINoX1UHyaVShshsdE/m2eGAW2WOKwdaiT0Fx7XhrM4g/f9rzFdgUE4rD+lRHbRbrr5dvAmptv5SryOR9dqSvehZKGJ2mr8ZXRjLUWC1D1KPBTGu1ZWsDV2im2+JJdar1nzXs=
+    distributions: "sdist bdist_wheel"
+    on:
+     tags: true
+  - provider: releases
+    api_key:
+      secure: LQe35jwKMn5NqzJA3EhNMpEiN9kI2vMmke/gu+DeXyhYWEe2yFfhLsKWuMbIqMPHwQzNRZtm+SA7vwevupWZFhVg0kFrE99v62+llOF59JekO7P01jXrdENFrtPxCilukg3tA1VWu9JWapNtpB5WZVNGyWQ03kYv5zjghqHT6yzVIT95vOeFIcdkHRpMbmNH6eQqIsXPJ5TRPsQZcbLebtlhZkllDTa2wg7bp+5NpcG91M+6YcdRfZRoOvVl7wYyY0sAdalN2B84BnZZ96G9r0NS7t8pvR/SXDI+cJOXvfBmoZuHFahqmRjNu86AlrB1bZ87W4dUrh7pJrJrzebxoeV+THgDfLW71suDKg3a3PlHou6UCacpZ0gazncrwoyZ3hFxqqr5av/23vxEIhB2TR5kcHBPnF8FMz7F4SgUtPEyvRwRwGsgBqMQwy0v9KgFwghKxTKFfZryctnLOoqBw22bjEA0u8x7IA/beE6+wVE+ySM2VclDbS+1UA8JHQ+HcCmcmoWBU0oMFytg4tLd1FVsaUYVuO9FTjbs42iMT3lM3oTsgiygxPXR3DobctwhOhvwAA+dIpz1ds3y53LNm4s7jB0vMVezAZl324tOHhLaPHJ7/3NXRIlnRL20u2tvsSfkfQgLdVED6djI0OogRgLB+o3h927TNTwSC3e6ELY=
+    file_glob: true
+    file: dist/*
+    on:
+      tags: true
