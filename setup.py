@@ -7,7 +7,7 @@ def readme():
 
 setup(
     name="lectocal",
-    version="1.1",
+    version="1.2",
     author="Philip 'Hanse00' Mallegol-Hansen",
     author_email="philip@mallegolhansen.com",
     url="https://github.com/Hanse00/LecToCal",
