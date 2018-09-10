@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 from codecs import open
 
+
 def readme():
     with open("README.md", encoding="utf-8") as f:
         return f.read()
@@ -31,6 +32,7 @@ setup(
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
 
         # Environment Type
         "Environment :: No Input/Output (Daemon)",
