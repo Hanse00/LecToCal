@@ -37,6 +37,7 @@ deploy:
     distributions: "sdist bdist_wheel"
     on:
      tags: true
+     python: "3.7"
   - provider: releases
     api_key:
       secure: LQe35jwKMn5NqzJA3EhNMpEiN9kI2vMmke/gu+DeXyhYWEe2yFfhLsKWuMbIqMPHwQzNRZtm+SA7vwevupWZFhVg0kFrE99v62+llOF59JekO7P01jXrdENFrtPxCilukg3tA1VWu9JWapNtpB5WZVNGyWQ03kYv5zjghqHT6yzVIT95vOeFIcdkHRpMbmNH6eQqIsXPJ5TRPsQZcbLebtlhZkllDTa2wg7bp+5NpcG91M+6YcdRfZRoOvVl7wYyY0sAdalN2B84BnZZ96G9r0NS7t8pvR/SXDI+cJOXvfBmoZuHFahqmRjNu86AlrB1bZ87W4dUrh7pJrJrzebxoeV+THgDfLW71suDKg3a3PlHou6UCacpZ0gazncrwoyZ3hFxqqr5av/23vxEIhB2TR5kcHBPnF8FMz7F4SgUtPEyvRwRwGsgBqMQwy0v9KgFwghKxTKFfZryctnLOoqBw22bjEA0u8x7IA/beE6+wVE+ySM2VclDbS+1UA8JHQ+HcCmcmoWBU0oMFytg4tLd1FVsaUYVuO9FTjbs42iMT3lM3oTsgiygxPXR3DobctwhOhvwAA+dIpz1ds3y53LNm4s7jB0vMVezAZl324tOHhLaPHJ7/3NXRIlnRL20u2tvsSfkfQgLdVED6djI0OogRgLB+o3h927TNTwSC3e6ELY=
@@ -44,3 +45,4 @@ deploy:
     file: dist/*
     on:
       tags: true
+      python: "3.7"
