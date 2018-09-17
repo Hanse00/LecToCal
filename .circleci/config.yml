@@ -1,14 +1,50 @@
-# Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
 version: 2
 jobs:
-  build:
+  tests:
+    working_directory: ~/lectocal
     docker:
       - image: circleci/python:3.7.0
 
     steps:
       - checkout
-      - run: echo "Hello World!"
-          
+      - run: pipenv install --dev
+      - run: pipenv run coverage run --branch --source lectocal -m unittest -v
+      - run: pipenv run coverage report
+      - run: pipenv run coveralls
+  deploy:
+    working_directory: ~/lectocal
+    docker:
+      - image: circleci/python:3.7.0
+    
+    steps:
+      - checkout
+      - run: pipenv install --dev
+      - run:
+          name: init .pypirc
+          command: |
+            echo -e "[pypi]" >> ~/.pypirc
+            echo -e "username = hanse00" >> ~/.pypirc
+            echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+      - run: pipenv run python setup.py sdist bdist_wheel
+      - run: pipenv run twine upload dist/*
+workflows:
+  version: 2
+  test:
+    jobs:
+      - tests
+  test_and_deploy:
+    jobs:
+      - tests:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - deploy:
+          requires:
+            - tests
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/

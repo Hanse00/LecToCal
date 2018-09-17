@@ -1,6 +1,6 @@
 # LecToCal
 
-[![Build Status](https://travis-ci.com/Hanse00/LecToCal.svg?branch=master)](https://travis-ci.com/Hanse00/LecToCal)
+[![CircleCI](https://circleci.com/gh/Hanse00/LecToCal.svg?style=svg)](https://circleci.com/gh/Hanse00/LecToCal)
 [![Coverage Status](https://coveralls.io/repos/github/Hanse00/LecToCal/badge.svg?branch=master)](https://coveralls.io/github/Hanse00/LecToCal)
 
 LecToCal is a python module for syncronizing Lectio schedules into Google Calendar.
