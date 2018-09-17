@@ -48,7 +48,8 @@ setup(
         "requests",
         "lxml",
         "pytz",
-        "python-dateutil"
+        "python-dateutil",
+        "oauth2client"
     ],
     package_data={
         "lectocal": [
