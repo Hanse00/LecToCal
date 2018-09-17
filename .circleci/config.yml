@@ -36,11 +36,15 @@ workflows:
     jobs:
       - tests:
           filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /^v.*/
       - deploy:
           requires:
             - tests
           filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /^v.*/
