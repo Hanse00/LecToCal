@@ -49,7 +49,9 @@ setup(
         "lxml",
         "pytz",
         "python-dateutil",
-        "oauth2client"
+        "oauth2client",
+        "backoff",
+        "pickle"
     ],
     package_data={
         "lectocal": [

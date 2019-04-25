@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import argparse
+import getpass
 from . import gauth
 from . import lectio
 from . import lesson
@@ -40,6 +41,14 @@ def _get_arguments():
                         default="Lectio",
                         help="Name to use for the calendar inside "
                         "Google Calendar. (default: Lectio)")
+    parser.add_argument("--login",
+                        default="",
+                        type=str,
+                        help="The username from a Lectio login.")
+    parser.add_argument('--keepalive',
+                        default=False,
+                        dest='keepalive', 
+                        action='store_true')
     parser.add_argument("--weeks",
                         type=int,
                         default=4,
@@ -51,21 +60,38 @@ def _get_arguments():
 
 def main():
     arguments = _get_arguments()
+    
+    if(arguments.login != ""):
+        password = getpass.getpass()
+    else:
+        password = ""
+    
+    
+    
     google_credentials = gauth.get_credentials(arguments.credentials)
     if not gcalendar.has_calendar(google_credentials, arguments.calendar):
         gcalendar.create_calendar(google_credentials, arguments.calendar)
-    lectio_schedule = lectio.get_schedule(arguments.school_id,
-                                          arguments.user_type,
-                                          arguments.user_id,
-                                          arguments.weeks)
-    google_schedule = gcalendar.get_schedule(google_credentials,
-                                             arguments.calendar,
-                                             arguments.weeks)
-    if not lesson.schedules_are_identical(lectio_schedule, google_schedule):
-        gcalendar.update_calendar_with_schedule(google_credentials,
-                                                arguments.calendar,
-                                                google_schedule,
-                                                lectio_schedule)
+    
+    if arguments.keepalive:
+        lectio_schedule = lectio.get_schedule(arguments.school_id,
+                                              arguments.user_type,
+                                              arguments.user_id,
+                                              1)
+    else:
+        lectio_schedule = lectio.get_schedule(arguments.school_id,
+                                              arguments.user_type,
+                                              arguments.user_id,
+                                              arguments.weeks,
+                                              arguments.login,
+                                              password)
+        google_schedule = gcalendar.get_schedule(google_credentials,
+                                                 arguments.calendar,
+                                                 arguments.weeks)
+        if not lesson.schedules_are_identical(lectio_schedule, google_schedule):
+            gcalendar.update_calendar_with_schedule(google_credentials,
+                                                    arguments.calendar,
+                                                    google_schedule,
+                                                    lectio_schedule)
 
 if __name__ == "__main__":
     main()

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import datetime
+import pickle
 import re
 import requests
 from lxml import html
@@ -43,15 +44,53 @@ class InvalidLocationError(Exception):
     """ The line doesn't include any location. """
 
 
-def _get_user_page(school_id, user_type, user_id, week=""):
+def _get_user_page(school_id, user_type, user_id, week = "", login = "", password = ""):
     URL_TEMPLATE = "https://www.lectio.dk/lectio/{0}/" \
                    "SkemaNy.aspx?type={1}&{1}id={2}&week={3}"
+                   
+    LOGIN_URL = "https://www.lectio.dk/lectio/{0}/login.aspx".format(school_id)
+    
+    # Start requests session
+    s = requests.Session()
+    
+    if(login != ""):
+        # Get eventvalidation key
+        result = s.get(LOGIN_URL)
+        tree = html.fromstring(result.text)
+        authenticity_token = list(set(tree.xpath("//input[@name='__EVENTVALIDATION']/@value")))[0]
 
-    r = requests.get(URL_TEMPLATE.format(school_id,
-                                         USER_TYPE[user_type],
-                                         user_id,
-                                         week),
+        # Create payload
+        payload = {
+            "m$Content$username2": login,
+            "m$Content$password2": password,
+            "m$Content$passwordHidden": password,
+            "__EVENTVALIDATION": authenticity_token,
+            "__EVENTTARGET": "m$Content$submitbtn2",
+            "__EVENTARGUMENT": "",
+            "LectioPostbackId": ""
+        }
+
+        # Perform login
+        result = s.post(LOGIN_URL, data = payload, headers = dict(referer = LOGIN_URL))
+        
+        # Save cookies to file
+        with open('cookie.txt', 'wb') as f:
+            pickle.dump(s.cookies, f)
+        
+    else:
+        # Load cookies from file
+        with open('cookie.txt', 'rb') as f:
+            s.cookies.update(pickle.load(f))
+        
+    # Scrape url and save cookies to file
+    r = s.get(URL_TEMPLATE.format(school_id,
+                                  USER_TYPE[user_type],
+                                  user_id,
+                                  week),
                      allow_redirects=False)
+    with open('cookie.txt', 'wb') as f:
+        pickle.dump(s.cookies, f)
+        
     return r
 
 
@@ -65,7 +104,7 @@ def _get_lectio_weekformat_with_offset(offset):
 
 
 def _get_id_from_link(link):
-    match = re.search("(?:absid|ProeveholdId|outboundCensorID)=(\d+)", link)
+    match = re.search("(?:absid|ProeveholdId|outboundCensorID|aftaleid)=(\d+)", link)
     if match is None:
         raise IdNotFoundInLinkError("Couldn't find id in link: {}".format(
                                     link))
@@ -218,8 +257,8 @@ def _parse_page_to_lessons(page):
     return lessons
 
 
-def _retreive_week_schedule(school_id, user_type, user_id, week):
-    r = _get_user_page(school_id, user_type, user_id, week)
+def _retreive_week_schedule(school_id, user_type, user_id, week, login = "", password = ""):
+    r = _get_user_page(school_id, user_type, user_id, week, login = "", password = "")
     schedule = _parse_page_to_lessons(r.content)
     return schedule
 
@@ -232,27 +271,29 @@ def _filter_for_duplicates(schedule):
     return filtered_schedule
 
 
-def _retreive_user_schedule(school_id, user_type, user_id, n_weeks):
+def _retreive_user_schedule(school_id, user_type, user_id, n_weeks, login = "", password = ""):
     schedule = []
     for week_offset in range(n_weeks + 1):
         week = _get_lectio_weekformat_with_offset(week_offset)
         week_schedule = _retreive_week_schedule(school_id,
                                                 user_type,
                                                 user_id,
-                                                week)
+                                                week, 
+                                                login = "", 
+                                                password = "")
         schedule += week_schedule
     filtered_schedule = _filter_for_duplicates(schedule)
     return filtered_schedule
 
 
-def _user_exists(school_id, user_type, user_id):
-    r = _get_user_page(school_id, user_type, user_id)
+def _user_exists(school_id, user_type, user_id, login = "", password = ""):
+    r = _get_user_page(school_id, user_type, user_id, "", login, password)
     return r.status_code == requests.codes.ok
 
 
-def get_schedule(school_id, user_type, user_id, n_weeks):
-    if not _user_exists(school_id, user_type, user_id):
+def get_schedule(school_id, user_type, user_id, n_weeks, login = "", password = ""):
+    if not _user_exists(school_id, user_type, user_id, login, password):
         raise UserDoesNotExistError("Couldn't find user - school: {}, "
-                                    "type: {}, id: {} - in Lectio.".format(
-                                        school_id, user_type, user_id))
-    return _retreive_user_schedule(school_id, user_type, user_id, n_weeks)
+                                    "type: {}, id: {}, login: {} - in Lectio.".format(
+                                        school_id, user_type, user_id, login))
+    return _retreive_user_schedule(school_id, user_type, user_id, n_weeks, login = "", password = "")
