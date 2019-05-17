@@ -106,8 +106,7 @@ def _get_lectio_weekformat_with_offset(offset):
 def _get_id_from_link(link):
     match = re.search("(?:absid|ProeveholdId|outboundCensorID|aftaleid)=(\d+)", link)
     if match is None:
-        raise IdNotFoundInLinkError("Couldn't find id in link: {}".format(
-                                    link))
+        return None
     return match.group(1)
 
 def _get_complete_link(link):
