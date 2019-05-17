@@ -215,7 +215,7 @@ def _add_new_lessons(service, calendar_id, old_schedule, new_schedule):
                 except HttpError as err:
                     #Status code 409 is conflict. In this case, it means the id already exists.
                     if err.resp.status == 409:
-                        _update_lesson(service, calendar_id, lesson)
+                        _update_lesson(service, calendar_id, new_lesson)
                     else:
                         raise err
 
