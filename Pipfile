@@ -17,5 +17,5 @@ python-dateutil = "*"
 pytz = "*"
 oauth2client = "*"
 backoff = "*"
-pickle = "*"
+
 
