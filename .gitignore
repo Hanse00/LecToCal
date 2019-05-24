@@ -1,5 +1,6 @@
 # Don't version user oauth credentials
 # These are generated per user, and will be generated on your system
+cookie.txt
 storage.json
 
 # Don't version cached or compiled python files

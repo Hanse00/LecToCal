@@ -8,6 +8,7 @@ pylint = "*"
 twine = "*"
 coverage = "*"
 coveralls = "*"
+rope = "*"
 
 [packages]
 google-api-python-client = "*"
@@ -17,5 +18,3 @@ python-dateutil = "*"
 pytz = "*"
 oauth2client = "*"
 backoff = "*"
-
-

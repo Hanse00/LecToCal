@@ -104,7 +104,7 @@ def _get_lectio_weekformat_with_offset(offset):
 
 
 def _get_id_from_link(link):
-    match = re.search("(?:absid|ProeveholdId|outboundCensorID|aftaleid)=(\d+)", link)
+    match = re.search(r"(?:absid|ProeveholdId|outboundCensorID|aftaleid)=(\d+)", link)
     if match is None:
         return None
     return match.group(1)
@@ -130,8 +130,8 @@ def _is_time_line(line):
     # 8/4-2016 17:30 til 9/4-2016 01:00
     # 7/12-2015 10:00 til 11:30
     # 17/12-2015 10:00 til 11:30
-    match = re.search("\d{1,2}/\d{1,2}-\d{4} (?:Hele dagen|\d{2}:\d{2} til "
-                      "(?:\d{1,2}/\d{1,2}-\d{4} )?\d{2}:\d{2})", line)
+    match = re.search(r"\d{1,2}/\d{1,2}-\d{4} (?:Hele dagen|\d{2}:\d{2} til "
+                      r"(?:\d{1,2}/\d{1,2}-\d{4} )?\d{2}:\d{2})", line)
     return match is not None
 
 
@@ -170,8 +170,8 @@ def _get_time_from_line(line):
     # 2 - start time
     # 3 - end date
     # 4 - end time
-    match = re.search("(\d{1,2}/\d{1,2}-\d{4})(?: (\d{2}:\d{2}) til "
-                      "(\d{1,2}/\d{1,2}-\d{4})? ?(\d{2}:\d{2}))?", line)
+    match = re.search(r"(\d{1,2}/\d{1,2}-\d{4})(?: (\d{2}:\d{2}) til "
+                      r"(\d{1,2}/\d{1,2}-\d{4})? ?(\d{2}:\d{2}))?", line)
     if match is None:
         raise InvalidTimeLineError("No time found in line: '{}'".format(line))
 

@@ -61,37 +61,45 @@ def _get_arguments():
 def main():
     arguments = _get_arguments()
     
-    if(arguments.login != ""):
-        password = getpass.getpass()
-    else:
-        password = ""
-    
-    
+    if arguments.keepalive:
+        _keepalive(arguments)
+        exit()
+
+    password = _get_password(arguments.login)
     
     google_credentials = gauth.get_credentials(arguments.credentials)
     if not gcalendar.has_calendar(google_credentials, arguments.calendar):
         gcalendar.create_calendar(google_credentials, arguments.calendar)
     
-    if arguments.keepalive:
-        lectio_schedule = lectio.get_schedule(arguments.school_id,
-                                              arguments.user_type,
-                                              arguments.user_id,
-                                              1)
+    lectio_schedule = lectio.get_schedule(arguments.school_id,
+                                            arguments.user_type,
+                                            arguments.user_id,
+                                            arguments.weeks,
+                                            arguments.login,
+                                            password)
+    google_schedule = gcalendar.get_schedule(google_credentials,
+                                                arguments.calendar,
+                                                arguments.weeks)
+    if not lesson.schedules_are_identical(lectio_schedule, google_schedule):
+        gcalendar.update_calendar_with_schedule(google_credentials,
+                                                arguments.calendar,
+                                                google_schedule,
+                                                lectio_schedule)
+
+
+def _keepalive(arguments):
+    lectio.get_schedule(arguments.school_id,
+                        arguments.user_type,
+                        arguments.user_id,
+                        1)
+
+
+def _get_password(login):
+    if(login != ""):
+        return getpass.getpass()
     else:
-        lectio_schedule = lectio.get_schedule(arguments.school_id,
-                                              arguments.user_type,
-                                              arguments.user_id,
-                                              arguments.weeks,
-                                              arguments.login,
-                                              password)
-        google_schedule = gcalendar.get_schedule(google_credentials,
-                                                 arguments.calendar,
-                                                 arguments.weeks)
-        if not lesson.schedules_are_identical(lectio_schedule, google_schedule):
-            gcalendar.update_calendar_with_schedule(google_credentials,
-                                                    arguments.calendar,
-                                                    google_schedule,
-                                                    lectio_schedule)
+        return ""
+
 
 if __name__ == "__main__":
     main()
