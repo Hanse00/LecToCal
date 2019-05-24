@@ -199,6 +199,17 @@ def _update_lesson(service, calendar_id, lesson):
         .execute()
 
 
+def _add_lesson_or_update_lesson(service, calendar_id, new_lesson):
+    try:
+        _add_lesson(service, calendar_id, new_lesson)
+    except HttpError as err:
+        #Status code 409 is conflict. In this case, it means the id already exists.
+        if err.resp.status == 409:
+            _update_lesson(service, calendar_id, new_lesson)
+        else:
+            raise err
+
+
 def _delete_removed_lessons(service, calendar_id, old_schedule, new_schedule):
     for old_lesson in old_schedule:
         if not any(new_lesson.id == old_lesson.id
@@ -210,14 +221,7 @@ def _add_new_lessons(service, calendar_id, old_schedule, new_schedule):
     for new_lesson in new_schedule:
         if not any(old_lesson.id == new_lesson.id
             for old_lesson in old_schedule):
-                try:
-                    _add_lesson(service, calendar_id, new_lesson)
-                except HttpError as err:
-                    #Status code 409 is conflict. In this case, it means the id already exists.
-                    if err.resp.status == 409:
-                        _update_lesson(service, calendar_id, new_lesson)
-                    else:
-                        raise err
+                _add_lesson_or_update_lesson(service, calendar_id, new_lesson)
 
 
 def _update_current_lessons(service, calendar_id, old_schedule, new_schedule):
