@@ -24,8 +24,8 @@ USER_TYPE = {"student": "elev", "teacher": "laerer"}
 LESSON_STATUS = {None: "normal", "Ændret!": "changed", "Aflyst!": "cancelled"}
 
 
-class UserDoesNotExistError(Exception):
-    """ Attempted to get a non-existing user from Lectio. """
+class CannotLoginToLectioError(Exception):
+    """ Could not login to Lectio (using cookie or login provided). """
 
 
 class IdNotFoundInLinkError(Exception):
@@ -285,14 +285,14 @@ def _retreive_user_schedule(school_id, user_type, user_id, n_weeks, login = "", 
     return filtered_schedule
 
 
-def _user_exists(school_id, user_type, user_id, login = "", password = ""):
+def _can_login(school_id, user_type, user_id, login = "", password = ""):
     r = _get_user_page(school_id, user_type, user_id, "", login, password)
     return r.status_code == requests.codes.ok
 
 
 def get_schedule(school_id, user_type, user_id, n_weeks, login = "", password = ""):
-    if not _user_exists(school_id, user_type, user_id, login, password):
-        raise UserDoesNotExistError("Couldn't find user - school: {}, "
-                                    "type: {}, id: {}, login: {} - in Lectio.".format(
-                                        school_id, user_type, user_id, login))
+    if not _can_login(school_id, user_type, user_id, login, password):
+        raise CannotLoginToLectioError(
+            "Couldn't login user - school: {}, type: {}, id: {}, login: {} "
+            "- in Lectio.".format(school_id, user_type, user_id, login))
     return _retreive_user_schedule(school_id, user_type, user_id, n_weeks, login = "", password = "")
