@@ -14,7 +14,7 @@ So you want to work with the code? Awesome!
 This project uses [Pipenv](https://pipenv.readthedocs.io/en/latest/), after cloning the repo, do the following:
 
 1. Make sure you have python 3 installed.
-2. Create a pipenv in your working directory with `pipenv --python 3`.
+2. Create a pipenv in your working directory with `pipenv --three`.
 3. Install both the default and development packages from the Pipfile with `pipenv install --dev`.
 
 You should now be ready to work.

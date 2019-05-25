@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import backoff
 import datetime
 from httplib2 import Http
 import dateutil.parser
@@ -150,7 +151,7 @@ def _parse_event_to_lesson(event):
     if "description" in event:
         description = event["description"]
     else:
-        description = None
+        description = ""
     if "source" in event and "url" in event["source"]:
         link = event["source"]["url"]
     else:
@@ -173,28 +174,22 @@ def get_schedule(google_credentials, calendar_name, n_weeks):
     events = _get_events_in_date_range(service, calendar_id, start, end)
     return _parse_events_to_schedule(events)
 
-
+@backoff.on_exception(backoff.expo, HttpError,  max_tries=8)
 def _delete_lesson(service, calendar_id, lesson_id):
     service \
         .events() \
         .delete(calendarId=calendar_id, eventId=lesson_id) \
         .execute()
 
-
+@backoff.on_exception(backoff.expo, HttpError,  max_tries=4)
 def _add_lesson(service, calendar_id, lesson):
-    try:
-        service \
-            .events() \
-            .insert(calendarId=calendar_id, body=lesson.to_gcalendar_format()) \
-            .execute()
-    except HttpError as err:
-        #Status code 409 is conflict. In this case, it means the id already exists.
-        if err.resp.status == 409:
-            _update_lesson(service, calendar_id, lesson)
-        else:
-            raise err
+    # try:
+    service \
+        .events() \
+        .insert(calendarId=calendar_id, body=lesson.to_gcalendar_format()) \
+        .execute()
 
-
+@backoff.on_exception(backoff.expo, HttpError,  max_tries=8)
 def _update_lesson(service, calendar_id, lesson):
     service \
         .events() \
@@ -204,18 +199,29 @@ def _update_lesson(service, calendar_id, lesson):
         .execute()
 
 
+def _add_lesson_or_update_lesson(service, calendar_id, new_lesson):
+    try:
+        _add_lesson(service, calendar_id, new_lesson)
+    except HttpError as err:
+        #Status code 409 is conflict. In this case, it means the id already exists.
+        if err.resp.status == 409:
+            _update_lesson(service, calendar_id, new_lesson)
+        else:
+            raise err
+
+
 def _delete_removed_lessons(service, calendar_id, old_schedule, new_schedule):
     for old_lesson in old_schedule:
         if not any(new_lesson.id == old_lesson.id
-                   for new_lesson in new_schedule):
-            _delete_lesson(service, calendar_id, old_lesson.id)
+            for new_lesson in new_schedule):
+                _delete_lesson(service, calendar_id, old_lesson.id)
 
 
 def _add_new_lessons(service, calendar_id, old_schedule, new_schedule):
     for new_lesson in new_schedule:
         if not any(old_lesson.id == new_lesson.id
-                   for old_lesson in old_schedule):
-            _add_lesson(service, calendar_id, new_lesson)
+            for old_lesson in old_schedule):
+                _add_lesson_or_update_lesson(service, calendar_id, new_lesson)
 
 
 def _update_current_lessons(service, calendar_id, old_schedule, new_schedule):
